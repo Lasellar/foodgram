@@ -77,4 +77,20 @@ class SignUpSerializer(Serializer):
         )
 
 
+class TokenSerializer(Serializer):
+    username = RegexField(
+        regex=r'^[\w.@+-]+\Z', max_length=32, required=True
+    )
+    confirmation_code = CharField(max_length=6, required=True)
 
+    def validate(self, attrs):
+        username = attrs.get('username')
+        confirmation_code = attrs.get('confirmation_code')
+        try:
+            user = User.objects.get(username=username)
+        except User.DoeNotExist:
+            raise NotFound('Пользователь не найден.')
+        if user.confirmation_code != confirmation_code:
+            raise ValidationError('Неверный код подтверждения.')
+        attrs['user'] = user
+        return attrs
