@@ -129,3 +129,15 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 10,
 
 }
+
+FORBIDDEN_CASES = {
+    'username': [
+        'me', 'user', 'username'
+    ],
+    'first_name': [],
+    'last_name': [],
+    'password': [],
+    'email': [
+        'noreply@foodgram.com'
+    ]
+}
