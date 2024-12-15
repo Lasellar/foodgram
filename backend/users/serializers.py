@@ -3,7 +3,7 @@ from django.core.mail import send_mail
 from django.conf import settings
 from django.utils.crypto import get_random_string
 from rest_framework.serializers import (
-    Serializer, RegexField, EmailField, CharField
+    Serializer, RegexField, EmailField, CharField, ChoiceField
 )
 from rest_framework.exceptions import ValidationError, NotFound
 from rest_framework.validators import UniqueValidator
@@ -94,3 +94,50 @@ class TokenSerializer(Serializer):
             raise ValidationError('Неверный код подтверждения.')
         attrs['user'] = user
         return attrs
+
+
+class UserSerializer(Serializer):
+    username = RegexField(
+        regex=r'^[\w.@+-]+\Z', max_length=32, required=True,
+        validators=[UniqueValidator(queryset=User.objects.all())]
+    )
+    email = EmailField(
+        max_length=256, required=True,
+        validators=[UniqueValidator(queryset=User.objects.all())]
+    )
+    first_name = CharField(max_length=20, required=False)
+    last_name = CharField(max_length=20, required=False)
+    role = ChoiceField(
+        choices=User.ROLE_CHOICES, required=False, default=User.USER
+    )
+
+    class Meta:
+        model = User
+        fields = (
+            'first_name', 'last_name', 'username',
+            'email', 'password', 'role'
+        )
+
+
+class MeSerializer(Serializer):
+    username = RegexField(
+        regex=r'^[\w.@+-]+\Z', max_length=32, required=True,
+        validators=[UniqueValidator(queryset=User.objects.all())]
+    )
+    email = EmailField(
+        max_length=256, required=True,
+        validators=[UniqueValidator(queryset=User.objects.all())]
+    )
+    first_name = CharField(max_length=20, required=False)
+    last_name = CharField(max_length=20, required=False)
+    role = ChoiceField(
+        choices=User.ROLE_CHOICES, required=False, default=User.USER
+    )
+
+    class Meta:
+        model = User
+        fields = (
+            'first_name', 'last_name', 'username',
+            'email', 'password', 'role'
+        )
+        read_only_fields = ('role',)
