@@ -1,39 +1,18 @@
 from django.contrib.auth.models import AbstractUser
-from django.core.exceptions import ValidationError
+from django.core.mail import send_mail
 from django.db.models import (
-    EmailField,
+    EmailField, CharField, ImageField
 )
 
 
 class User(AbstractUser):
-    USER = 'user'
-    ADMIN = 'admin'
-
-    ROLE_CHOICES = [
-        (USER, 'Аутентифицированный пользователь'),
-        (ADMIN, 'Администратор')
-    ]
-
-    email = EmailField(unique=True, blank=False, null=False)
-
-    class Meta:
-        verbose_name = 'Пользователь'
-        verbose_name_plural = 'Пользователи'
-
-    def clean(self):
-        """Запрет на использование 'me' в качестве имени пользователя."""
-        if (
-            self.username.lower() == 'me'
-        ) or (
-            self.username.lower() == 'user'
-        ) or (
-            self.username.lower() == 'username'
-        ):
-            raise ValidationError('Недопустимый username')
-        super().clean()
-
-    def save(self, *args, **kwargs):
-        self.role = self.ADMIN if self.is_superuser else self.USER
-        self.is_staff = self.role == self.ADMIN
-        super().save(*args, **kwargs)
+    """Модель пользователя."""
+    email = EmailField(unique=True, max_length=128)
+    first_name = CharField(max_length=32)
+    last_name = CharField(max_length=32)
+    username = CharField(max_length=32, unique=True)
+    avatar = ImageField(
+        'Аватар', upload_to='avatars/', blank=True, null=True
+    )
+    password = CharField(max_length=32)
 
