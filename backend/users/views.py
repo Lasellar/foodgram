@@ -1,14 +1,18 @@
 from django.contrib.auth import get_user_model, authenticate
+from django.core.files.base import ContentFile
 from rest_framework.authtoken.models import Token
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
+
 from .serializers import (
     SignUpSerializer, UserSerializer
 )
 from .validators import SignUpValidator
+
+import base64
 
 User = get_user_model()
 
@@ -90,14 +94,19 @@ class AvatarView(APIView):
 
     def put(self, request):
         user = request.user
-        avatar = request.FILES.get('avatar')
+        avatar = request.data.get('avatar')
         if avatar:
-            user.avatar = avatar
-            user.save()
-            return Response(
-                {'avatar': user.avatar.url},
-                status=status.HTTP_201_CREATED
-            )
+            if avatar.startswith('data:image/'):
+                frmt, imgstr = avatar.split(';base64,')
+                ext = frmt.split('/')[-1]
+                avatar_file = ContentFile(
+                    base64.b64decode(imgstr),
+                    name=f'{user.username}.{ext}'
+                )
+                user.avatar.save(f'{user.username}.{ext}', avatar_file)
+                return Response(
+                    {'avatar': user.avatar.url},
+                    status=status.HTTP_201_CREATED)
         return Response(
             {'error': 'No avatar provided'},
             status=status.HTTP_400_BAD_REQUEST
