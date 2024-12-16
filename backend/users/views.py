@@ -1,10 +1,12 @@
 from django.contrib.auth import get_user_model, authenticate
 from rest_framework.authtoken.models import Token
 from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.viewsets import ModelViewSet
 from .serializers import (
-    SignUpSerializer
+    SignUpSerializer, UserSerializer
 )
 from .validators import SignUpValidator
 
@@ -41,4 +43,35 @@ class LoginView(APIView):
         return Response(
             {'error': 'Invalid credentials'},
             status=status.HTTP_401_UNAUTHORIZED
+        )
+
+
+class UserViewSet(ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = (IsAuthenticated,)
+
+    def get_object(self):
+        if self.kwargs.get('pk') == 'me':
+            return self.request.user
+        return super().get_object()
+
+    def list(self, request, *args, **kwargs):
+        if request.user.is_staff:
+            queryset = self.get_queryset()
+            serializer = self.get_serializer(queryset, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(
+            {'detail': 'Method Not Allowed'},
+            status=status.HTTP_405_METHOD_NOT_ALLOWED
+        )
+
+    def retrieve(self, request, *args, **kwargs):
+        if request.user.is_staff:
+            instance = self.get_object()
+            serializer = self.get_serializer(instance)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(
+            {'detail': 'Method Not Allowed'},
+            status=status.HTTP_405_METHOD_NOT_ALLOWED
         )

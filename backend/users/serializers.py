@@ -21,3 +21,11 @@ class SignUpSerializer(ModelSerializer):
             'email', 'id', 'username', 'first_name',
             'last_name', 'avatar', 'password'
         )
+
+
+class UserSerializer(ModelSerializer):
+    class Meta:
+        model = User
+        fields = (
+            'username', 'id'
+        )
