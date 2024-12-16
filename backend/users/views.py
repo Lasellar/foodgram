@@ -83,3 +83,29 @@ class UserViewSet(ModelViewSet):
             {'detail': 'Method Not Allowed'},
             status=status.HTTP_405_METHOD_NOT_ALLOWED
         )
+
+
+class AvatarView(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def put(self, request):
+        user = request.user
+        avatar = request.FILES.get('avatar')
+        if avatar:
+            user.avatar = avatar
+            user.save()
+            return Response(
+                {'avatar': user.avatar.url},
+                status=status.HTTP_201_CREATED
+            )
+        return Response(
+            {'error': 'No avatar provided'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    def delete(self, request):
+        user = request.user
+        user.avatar.delete(save=False)
+        user.avatar = None
+        user.save()
+        return Response(status=status.HTTP_204_NO_CONTENT)
