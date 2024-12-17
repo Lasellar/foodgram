@@ -1,6 +1,6 @@
 from django.db.models import (
     Model, CharField, SlugField, Choices, ManyToManyField, TextField,
-    PositiveSmallIntegerField, ImageField
+    PositiveSmallIntegerField, ImageField, ForeignKey, CASCADE
 )
 
 MEASUREMENT_UNIT_CHOICES = (
@@ -43,3 +43,11 @@ class Recipe(Model):
 
     def __str__(self):
         return self.name
+
+
+class RecipeTag(Model):
+    recipe = ForeignKey(Recipe, on_delete=CASCADE)
+    tag = ForeignKey(Tag, on_delete=CASCADE)
+
+    def __str__(self):
+        return f'{self.recipe} - {self.tag}'
