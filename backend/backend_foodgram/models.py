@@ -51,3 +51,11 @@ class RecipeTag(Model):
 
     def __str__(self):
         return f'{self.recipe} - {self.tag}'
+
+
+class RecipeIngredient(Model):
+    recipe = ForeignKey(Recipe, on_delete=CASCADE)
+    ingredient = ForeignKey(Recipe, on_delete=CASCADE)
+
+    def __str__(self):
+        return f'{self.recipe} - {self.ingredient}'
