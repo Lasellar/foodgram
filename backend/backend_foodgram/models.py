@@ -16,6 +16,9 @@ class Tag(Model):
     name = CharField(verbose_name='Название', max_length=16)
     slug = SlugField(verbose_name='Слаг', max_length=32)
 
+    def __str__(self):
+        return self.name
+
 
 class Ingredient(Model):
     name = CharField(verbose_name='Ингредиент', max_length=128)
@@ -23,6 +26,9 @@ class Ingredient(Model):
         max_length=4, choices=MEASUREMENT_UNIT_CHOICES,
         verbose_name='Мера измерения'
     )
+
+    def __str__(self):
+        return self.name
 
 
 class Recipe(Model):
