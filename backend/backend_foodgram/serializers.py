@@ -2,7 +2,7 @@ import base64
 
 from django.core.files.base import ContentFile
 from rest_framework.serializers import (
-    ModelSerializer, ImageField
+    ModelSerializer, ImageField, IntegerField, PrimaryKeyRelatedField
 )
 
 from .models import (
@@ -28,12 +28,14 @@ class TagSerializer(ModelSerializer):
 class IngredientSerializer(ModelSerializer):
     class Meta:
         model = Ingredient
-        fields = ('id', 'name', 'measurement_unit',)
+        fields = ('name', 'measurement_unit', 'amount')
 
 
 class RecipeCreateSerializer(ModelSerializer):
     ingredients = IngredientSerializer(many=True)
-    tags = TagSerializer(many=True)
+    tags = PrimaryKeyRelatedField(
+        queryset=Tag.objects.all(), many=True
+    )
     image = Base64ImageField()
 
     class Meta:
@@ -43,21 +45,18 @@ class RecipeCreateSerializer(ModelSerializer):
         )
 
     def create(self, validated_data):
-        ingredients = validated_data.pop('ingredients')
-        tags = validated_data.pop('tags')
-        recipe = Recipe.objects.create(
-            author=self.context.get('request').user,
-            **validated_data
-        )
-        for ingredient in ingredients:
-            current_ingredient, status = Ingredient.objects.get_or_create(
-                **ingredient
+        ingredients_data = validated_data.pop('ingredients')
+        tags_data = validated_data.pop('tags')
+        recipe = Recipe.objects.create(**validated_data)
+
+        for ingredient_data in ingredients_data:
+            ingredient, _ = Ingredient.objects.get_or_create(
+                name=ingredient_data['name'],
+                measurement_unit=ingredient_data['measurement_unit'],
+                amount=ingredient_data['amount']
             )
             RecipeIngredient.objects.create(
-                recipe=recipe, ingredient=current_ingredient
+                recipe=recipe, ingredient=ingredient
             )
-        for tag in tags:
-            current_tag, status = Tag.objects.get_or_create(**tag)
-            RecipeTag.objects.create(recipe=recipe, tag=current_tag)
-        return recipe
-
+            recipe.tags.set(tags_data)
+            return recipe

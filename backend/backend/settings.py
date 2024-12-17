@@ -141,3 +141,5 @@ FORBIDDEN_CASES = {
         'noreply@foodgram.com'
     ]
 }
+
+EMPTY_VALUE = '---'

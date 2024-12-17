@@ -1,6 +1,7 @@
+from django.core.validators import MinValueValidator
 from django.db.models import (
     Model, CharField, SlugField, Choices, ManyToManyField, TextField,
-    PositiveSmallIntegerField, ImageField, ForeignKey, CASCADE
+    IntegerField, ImageField, ForeignKey, CASCADE
 )
 
 MEASUREMENT_UNIT_CHOICES = (
@@ -26,6 +27,7 @@ class Ingredient(Model):
         max_length=4, choices=MEASUREMENT_UNIT_CHOICES,
         verbose_name='Мера измерения'
     )
+    amount = IntegerField()
 
     def __str__(self):
         return self.name
@@ -34,7 +36,7 @@ class Ingredient(Model):
 class Recipe(Model):
     name = CharField(verbose_name='Название', max_length=256)
     text = TextField(verbose_name='Описание')
-    cooking_time = PositiveSmallIntegerField(
+    cooking_time = IntegerField(
         verbose_name='Время приготовления(в минутах)'
     )
     tags = ManyToManyField(Tag, through='RecipeTag')
@@ -55,7 +57,7 @@ class RecipeTag(Model):
 
 class RecipeIngredient(Model):
     recipe = ForeignKey(Recipe, on_delete=CASCADE)
-    ingredient = ForeignKey(Recipe, on_delete=CASCADE)
+    ingredient = ForeignKey(Ingredient, on_delete=CASCADE)
 
     def __str__(self):
         return f'{self.recipe} - {self.ingredient}'
