@@ -31,3 +31,22 @@ class RecipeSerializer(ModelSerializer):
         )
         read_only_fields = ('author',)
 
+    def create(self, validated_data):
+        ingredients = validated_data.pop('ingredients')
+        tags = validated_data.pop('tags')
+        recipe = Recipe.objects.create(
+            author=self.context.get('request').user,
+            **validated_data
+        )
+        for ingredient in ingredients:
+            current_ingredient, status = Ingredient.objects.get_or_create(
+                **ingredient
+            )
+            RecipeIngredient.objects.create(
+                recipe=recipe, ingredient=current_ingredient
+            )
+        for tag in tags:
+            current_tag, status = Tag.objects.get_or_create(**tag)
+            RecipeTag.objects.create(recipe=recipe, tag=current_tag)
+        return recipe
+
