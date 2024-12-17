@@ -18,6 +18,7 @@ class TagViewSet(RetrieveModelMixin, ListModelMixin):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
     permission_classes = (IsAdminUser,)
+    pagination_class = None
 
 
 class IngredientViewSet(RetrieveModelMixin, ListModelMixin):
@@ -26,3 +27,4 @@ class IngredientViewSet(RetrieveModelMixin, ListModelMixin):
     permission_classes = (IsAdminUser,)
     filter_backends = (DjangoFilterBackend,)
     filterset_class = IngredientFilter
+    pagination_class = None
