@@ -1,5 +1,6 @@
 from django.db.models import (
-    Model, CharField, SlugField, Choices
+    Model, CharField, SlugField, Choices, ManyToManyField, TextField,
+    PositiveSmallIntegerField, ImageField
 )
 
 MEASUREMENT_UNIT_CHOICES = (
@@ -22,3 +23,17 @@ class Ingredient(Model):
         max_length=4, choices=MEASUREMENT_UNIT_CHOICES,
         verbose_name='Мера измерения'
     )
+
+
+class Recipe(Model):
+    name = CharField(verbose_name='Название', max_length=256)
+    text = TextField(verbose_name='Описание')
+    cooking_time = PositiveSmallIntegerField(
+        verbose_name='Время приготовления(в минутах)'
+    )
+    tags = ManyToManyField(Tag, through='RecipeTag')
+    ingredients = ManyToManyField(Ingredient, through='RecipeIngredient')
+    image = ImageField(upload_to='recipes/images/')
+
+    def __str__(self):
+        return self.name
