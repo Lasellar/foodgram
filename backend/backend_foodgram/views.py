@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.viewsets import ModelViewSet
 from rest_framework.mixins import (
     CreateModelMixin, ListModelMixin, RetrieveModelMixin
 )
@@ -7,10 +8,10 @@ from rest_framework.permissions import IsAdminUser
 
 from .filters import IngredientFilter
 from .models import (
-    Tag, Ingredient,
+    Tag, Ingredient, Recipe
 )
 from .serializers import (
-    TagSerializer, IngredientSerializer
+    TagSerializer, IngredientSerializer, RecipeCreateSerializer
 )
 
 
@@ -28,3 +29,25 @@ class IngredientViewSet(RetrieveModelMixin, ListModelMixin):
     filter_backends = (DjangoFilterBackend,)
     filterset_class = IngredientFilter
     pagination_class = None
+
+
+class RecipeCreateViewSet(CreateModelMixin):
+    serializer_class = RecipeCreateSerializer
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

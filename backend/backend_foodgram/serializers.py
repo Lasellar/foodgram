@@ -1,10 +1,22 @@
 import base64
 
-from rest_framework.serializers import ModelSerializer
+from django.core.files.base import ContentFile
+from rest_framework.serializers import (
+    ModelSerializer, ImageField
+)
 
 from .models import (
     Tag, Ingredient, Recipe, RecipeIngredient, RecipeTag
 )
+
+
+class Base64ImageField(ImageField):
+    def to_internal_value(self, data):
+        if isinstance(data, str) and data.startswith('data:image'):
+            fmt, imgstr = data.split(';base64,')
+            ext = fmt.split('/')[-1]
+            data = ContentFile(base64.b64decode(imgstr), name='temp.' + ext)
+        return super().to_internal_value(data)
 
 
 class TagSerializer(ModelSerializer):
@@ -19,17 +31,16 @@ class IngredientSerializer(ModelSerializer):
         fields = ('id', 'name', 'measurement_unit',)
 
 
-class RecipeSerializer(ModelSerializer):
+class RecipeCreateSerializer(ModelSerializer):
     ingredients = IngredientSerializer(many=True)
     tags = TagSerializer(many=True)
+    image = Base64ImageField()
 
     class Meta:
         model = Recipe
         fields = (
-            'id', 'tags', 'author', 'ingredients', 'is_favorited',
-            'is_in_shoppting_cart', 'name', 'image', 'text', 'cooking_time'
+            'ingredients', 'tags', 'image', 'name', 'text', 'cooking_time'
         )
-        read_only_fields = ('author',)
 
     def create(self, validated_data):
         ingredients = validated_data.pop('ingredients')
