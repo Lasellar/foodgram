@@ -69,8 +69,16 @@ class RecipeCreateSerializer(ModelSerializer):
             RecipeIngredient.objects.create(
                 recipe=recipe, ingredient=ingredient
             )
-            recipe.tags.set(tags_data)
-            return recipe
+        recipe.tags.set(tags_data)
+        return recipe
+
+    def update(self, instance, validated_data):
+        ingredients_data = validated_data.pop('ingredients')
+        tags_data = validated_data.pop('tags')
+        instance.tags.clear()
+        instance.tags.set(tags_data)
+        instance.ingredients.clear()
+        RecipeIngredient.objects.filter(recipe=instance).delete()
 
 
 class RecipeShippingCartSerializer(ModelSerializer):
