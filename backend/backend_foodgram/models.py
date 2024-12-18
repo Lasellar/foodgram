@@ -37,6 +37,9 @@ class Ingredient(Model):
 
 
 class Recipe(Model):
+    author = ForeignKey(
+        User, on_delete=CASCADE, related_name='recipes'
+    )
     name = CharField(verbose_name='Название', max_length=256)
     text = TextField(verbose_name='Описание')
     cooking_time = IntegerField(
