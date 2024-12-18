@@ -1,8 +1,11 @@
+from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator
 from django.db.models import (
     Model, CharField, SlugField, Choices, ManyToManyField, TextField,
-    IntegerField, ImageField, ForeignKey, CASCADE
+    IntegerField, ImageField, ForeignKey, CASCADE, UniqueConstraint
 )
+
+User = get_user_model()
 
 MEASUREMENT_UNIT_CHOICES = (
     ('kg', 'кг'),
@@ -56,8 +59,33 @@ class RecipeTag(Model):
 
 
 class RecipeIngredient(Model):
-    recipe = ForeignKey(Recipe, on_delete=CASCADE)
-    ingredient = ForeignKey(Ingredient, on_delete=CASCADE)
+    recipe = ForeignKey(
+        Recipe, on_delete=CASCADE, related_name='recipeingredients'
+    )
+    ingredient = ForeignKey(
+        Ingredient, on_delete=CASCADE, related_name='recipeingredients'
+    )
 
     def __str__(self):
         return f'{self.recipe} - {self.ingredient}'
+
+
+class Favorite(Model):
+    user = ForeignKey(
+        User, on_delete=CASCADE, related_name='favorites'
+    )
+    recipe = ForeignKey(
+        Recipe, on_delete=CASCADE, related_name='favorites'
+    )
+
+    class Meta:
+        ordering = ('-id',)
+        constraints = [
+            UniqueConstraint(
+                fields=('user', 'recipe'),
+                name='unique_favorite_user_recipe'
+            )
+        ]
+
+    def __str__(self):
+        return f'{self.recipe.name} в избранном у {self.user.username}'
