@@ -79,6 +79,16 @@ class RecipeCreateSerializer(ModelSerializer):
         instance.tags.set(tags_data)
         instance.ingredients.clear()
         RecipeIngredient.objects.filter(recipe=instance).delete()
+        for ingredient_data in ingredients_data:
+            ingredient, _ = Ingredient.objects.get_or_create(
+                name=ingredient_data['name'],
+                measurement_unit=ingredient_data['measurement_unit'],
+                amount=ingredient_data['amount']
+            )
+            RecipeIngredient.objects.create(
+                recipe=instance, ingredient=ingredient
+            )
+        return instance
 
 
 class RecipeShippingCartSerializer(ModelSerializer):
