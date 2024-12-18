@@ -31,6 +31,12 @@ class IngredientSerializer(ModelSerializer):
         fields = ('name', 'measurement_unit', 'amount')
 
 
+class IngredientGETSerializer(ModelSerializer):
+    class Meta:
+        model = Ingredient
+        fields = ('id', 'name', 'measurement_unit')
+
+
 class RecipeCreateSerializer(ModelSerializer):
     ingredients = IngredientSerializer(many=True)
     tags = PrimaryKeyRelatedField(
@@ -60,3 +66,9 @@ class RecipeCreateSerializer(ModelSerializer):
             )
             recipe.tags.set(tags_data)
             return recipe
+
+
+class RecipeShippingCartSerializer(ModelSerializer):
+    class Meta:
+        model = Recipe
+        fields = ('id', 'name', 'image', 'cooking_time')

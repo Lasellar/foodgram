@@ -11,7 +11,8 @@ from .models import (
     Tag, Ingredient, Recipe
 )
 from .serializers import (
-    TagSerializer, IngredientSerializer, RecipeCreateSerializer
+    TagSerializer, IngredientSerializer, RecipeCreateSerializer,
+    IngredientGETSerializer
 )
 
 
@@ -24,7 +25,7 @@ class TagViewSet(ReadOnlyModelViewSet):
 
 class IngredientViewSet(ReadOnlyModelViewSet):
     queryset = Ingredient.objects.all()
-    serializer_class = IngredientSerializer
+    serializer_class = IngredientGETSerializer
     permission_classes = (IsAdminUser,)
     filter_backends = (DjangoFilterBackend,)
     filterset_class = IngredientFilter
