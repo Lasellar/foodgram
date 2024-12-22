@@ -1,31 +1,39 @@
 from django.contrib.auth import get_user_model
+from djoser.serializers import UserCreateSerializer, UserSerializer
 from rest_framework.serializers import (
-    ModelSerializer, CharField
+    ModelSerializer, CharField, SerializerMethodField
 )
+
+from .models import Subscription
 
 User = get_user_model()
 
 
-class SignUpSerializer(ModelSerializer):
-    password = CharField(write_only=True)
-
-    def create(self, validated_data):
-        user = User(**validated_data)
-        user.set_password(validated_data['password'])
-        user.save()
-        return user
-
+class SignUpSerializer(UserCreateSerializer):
     class Meta:
         model = User
         fields = (
             'email', 'id', 'username', 'first_name',
-            'last_name', 'avatar', 'password'
+            'last_name', 'password'
         )
 
 
-class UserSerializer(ModelSerializer):
+class UserGETSerializer(ModelSerializer):
+    is_subscribed = SerializerMethodField()
+
     class Meta:
         model = User
         fields = (
-            'email', 'id', 'username', 'first_name', 'last_name'
+            'email', 'id', 'username', 'first_name', 'last_name',
+            'is_subscribed'
+        )
+
+    def get_is_subscribed(self, obj):
+        user = self.context.get('request').user
+        return (
+            user.is_authenticated and (
+                Subscription.objects.filter(
+                    user=user, author=obj
+                ).exists()
+            )
         )
