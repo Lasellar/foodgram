@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator
 from django.db.models import (
     Model, CharField, SlugField, Choices, ManyToManyField, TextField,
-    IntegerField, ImageField, ForeignKey, CASCADE, UniqueConstraint
+    IntegerField, ImageField, ForeignKey, CASCADE, UniqueConstraint,
 )
 
 User = get_user_model()
@@ -17,8 +17,8 @@ MEASUREMENT_UNIT_CHOICES = (
 
 
 class Tag(Model):
-    name = CharField(verbose_name='Название', max_length=16)
-    slug = SlugField(verbose_name='Слаг', max_length=32)
+    name = CharField(verbose_name='Название', max_length=16, unique=True)
+    slug = SlugField(verbose_name='Слаг', max_length=32, unique=True)
 
     def __str__(self):
         return self.name
@@ -27,19 +27,18 @@ class Tag(Model):
 class Ingredient(Model):
     name = CharField(verbose_name='Ингредиент', max_length=128)
     measurement_unit = CharField(
-        max_length=4, choices=MEASUREMENT_UNIT_CHOICES,
+        max_length=4,
         verbose_name='Мера измерения'
     )
-    amount = IntegerField()
 
     def __str__(self):
         return self.name
 
 
 class Recipe(Model):
-    author = ForeignKey(
-        User, on_delete=CASCADE, related_name='recipes'
-    )
+    # author = ForeignKey(
+    #    User, on_delete=CASCADE, related_name='recipes'
+    # )
     name = CharField(verbose_name='Название', max_length=256)
     text = TextField(verbose_name='Описание')
     cooking_time = IntegerField(
@@ -68,6 +67,16 @@ class RecipeIngredient(Model):
     ingredient = ForeignKey(
         Ingredient, on_delete=CASCADE, related_name='recipeingredients'
     )
+    amount = IntegerField()
+
+    class Meta:
+        ordering = ('-id',)
+        constraints = [
+            UniqueConstraint(
+                fields=('recipe', 'ingredient', 'amount'),
+                name='unique_recipeingredient_recipe_ingredient_amount'
+            )
+        ]
 
     def __str__(self):
         return f'{self.recipe} - {self.ingredient}'

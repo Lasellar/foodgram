@@ -3,7 +3,9 @@ from django.contrib.admin import (
     ModelAdmin, register, TabularInline
 )
 
-from .models import Tag, Ingredient, Recipe, RecipeIngredient
+from .models import (
+    Tag, Ingredient, Recipe, RecipeIngredient, Favorite, ShoppingCart
+)
 
 
 class RecipeIngredientInline(TabularInline):
@@ -24,3 +26,19 @@ class IngredientAdmin(ModelAdmin):
     search_fields = ('id', 'name', 'measurement_unit')
     list_filter = ('id', 'name')
     empty_value_display = settings.EMPTY_VALUE
+
+
+@register(Recipe)
+class RecipeAdmin(ModelAdmin):
+    list_display = ('id', 'name', 'display_tags', 'display_ingredients')
+
+    def display_tags(self, obj):
+        return ', '.join([tag.name for tag in obj.tags.all()])
+
+    def display_ingredients(self, obj):
+        return ', '.join([ingredient.name for ingredient in obj.ingredients.all()])
+
+
+@register(RecipeIngredient)
+class RecipeIngredientAdmin(ModelAdmin):
+    list_display = ('id', 'recipe', 'ingredient', 'amount')

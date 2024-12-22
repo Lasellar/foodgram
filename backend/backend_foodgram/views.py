@@ -1,6 +1,8 @@
 from django.shortcuts import render
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.viewsets import ReadOnlyModelViewSet, GenericViewSet
+from rest_framework.viewsets import (
+    ReadOnlyModelViewSet, GenericViewSet, ModelViewSet
+)
 from rest_framework.mixins import (
     CreateModelMixin, ListModelMixin, RetrieveModelMixin
 )
@@ -12,7 +14,7 @@ from .models import (
 )
 from .serializers import (
     TagSerializer, IngredientSerializer, RecipeCreateSerializer,
-    IngredientGETSerializer
+    IngredientGETSerializer, RecipeGETSerializer
 )
 
 
@@ -25,15 +27,22 @@ class TagViewSet(ReadOnlyModelViewSet):
 
 class IngredientViewSet(ReadOnlyModelViewSet):
     queryset = Ingredient.objects.all()
-    serializer_class = IngredientGETSerializer
+    serializer_class = IngredientSerializer
     permission_classes = (IsAdminUser,)
     filter_backends = (DjangoFilterBackend,)
     filterset_class = IngredientFilter
     pagination_class = None
 
 
-class RecipeCreateViewSet(CreateModelMixin, GenericViewSet):
-    serializer_class = RecipeCreateSerializer
+class RecipeViewSet(ModelViewSet):
+    queryset = Recipe.objects.all()
+    filter_backends = (DjangoFilterBackend,)
+    http_method_names = ('get', 'post', 'patch', 'delete')
+
+    def get_serializer_class(self):
+        if self.action in ('list', 'retrieve'):
+            return RecipeGETSerializer
+        return RecipeCreateSerializer
 
 
 
