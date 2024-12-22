@@ -6,12 +6,12 @@ from django.db.models import (
 
 class User(AbstractUser):
     """Модель пользователя."""
-    email = EmailField(unique=True, max_length=128)
-    first_name = CharField(max_length=32)
-    last_name = CharField(max_length=32)
-    username = CharField(max_length=32, unique=True)
+    email = EmailField(unique=True, max_length=254)
+    first_name = CharField(max_length=150)
+    last_name = CharField(max_length=150)
+    username = CharField(max_length=150, unique=True)
     avatar = ImageField(
         'Аватар', upload_to='avatars/', blank=True, null=True
     )
-    password = CharField(max_length=32)
+    password = CharField()
 
