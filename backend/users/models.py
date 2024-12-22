@@ -14,7 +14,6 @@ class User(AbstractUser):
     avatar = ImageField(
         'Аватар', upload_to='avatars/', blank=True, null=True
     )
-    password = CharField()
 
 
 class Subscription(Model):

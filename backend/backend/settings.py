@@ -24,8 +24,6 @@ INSTALLED_APPS = [
     'backend_foodgram.apps.BackendFoodgramConfig'
 ]
 
-AUTH_USER_MODEL = 'users.User'
-
 EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
 EMAIL_FILE_PATH = BASE_DIR / 'sent_emails'
 DEFAULT_FROM_EMAIL = 'noreply@foodgram.com'
@@ -64,14 +62,6 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
-    },
-    'postgresql': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('POSTGRES_DB', 'django'),
-        'USER': os.getenv('POSTGRES_USER', 'django'),
-        'PASSWORD': os.getenv('POSTGRES_PASSWORD', ''),
-        'HOST': os.getenv('DB_HOST', ''),
-        'PORT': os.getenv('DB_PORT', 5432)
     }
 }
 
@@ -115,6 +105,7 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+AUTH_USER_MODEL = 'users.User'
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
@@ -143,3 +134,18 @@ FORBIDDEN_CASES = {
 }
 
 EMPTY_VALUE = '---'
+
+DJOSER = {
+    'LOGIN_FIELD': 'email',
+    'SERIALIZERS': {
+        'user_create': 'users.serializers.UserSignUpSerializer',
+        'user': 'users.serializers.UserGETSerializer',
+        'current_user': 'users.serializers.UserGETSerializer'
+    },
+    'PERMISSIONS': {
+        'user_list': ('rest_framework.permissions.AllowAny',),
+        'user': ('djoser.permissions.CurrentUserOrAdminOrReadOnly',)
+    }
+}
+
+

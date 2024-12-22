@@ -9,7 +9,7 @@ from .models import Subscription
 User = get_user_model()
 
 
-class SignUpSerializer(UserCreateSerializer):
+class UserSignUpSerializer(UserCreateSerializer):
     class Meta:
         model = User
         fields = (
