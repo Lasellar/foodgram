@@ -52,8 +52,12 @@ class RecipeViewSet(ModelViewSet):
     @action(detail=True, methods=('post', 'delete'))
     def favorite(self, request, pk):
         recipe = get_object_or_404(Recipe, id=pk)
+        user = request.user.id
         if request.method == 'POST':
-            serializer = FavoriteSerializer(recipe)
+            serializer = FavoriteSerializer(
+                data={'user': user, 'recipe': recipe.id},
+                context={'request': request}
+            )
             if serializer.is_valid():
                 serializer.save()
                 return Response(
@@ -79,8 +83,12 @@ class RecipeViewSet(ModelViewSet):
     @action(detail=True, methods=('post', 'delete'))
     def shopping_cart(self, request, pk):
         recipe = get_object_or_404(Recipe, id=pk)
-        if request.methods == 'POST':
-            serializer = ShoppingCartSerializer(recipe)
+        user = request.user.id
+        if request.method == 'POST':
+            serializer = ShoppingCartSerializer(
+                data={'user': user, 'recipe': recipe.id},
+                context={'request': request}
+            )
             if serializer.is_valid():
                 serializer.save()
                 return Response(

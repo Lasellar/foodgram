@@ -10,7 +10,7 @@ from rest_framework.serializers import (
 )
 
 from .models import (
-    Tag, Ingredient, Recipe, RecipeIngredient, RecipeTag, Favorite
+    Tag, Ingredient, Recipe, RecipeIngredient, RecipeTag, Favorite, ShoppingCart
 )
 # from ..users.serializers import UserSerializer
 
@@ -127,12 +127,6 @@ class RecipeCreateSerializer(ModelSerializer):
         return instance
 
 
-class ShoppingCartSerializer(ModelSerializer):
-    class Meta:
-        model = Recipe
-        fields = ('id', 'name', 'image', 'cooking_time')
-
-
 class RecipeGETSerializer(ModelSerializer):
     ingredients = IngredientGETSerializer(many=True, source='recipeingredients')
     tags = TagSerializer(many=True, read_only=True)
@@ -154,5 +148,31 @@ class RecipeGETSerializer(ModelSerializer):
         )
 
 
+class RecipeShortSerializer(ModelSerializer):
+    class Meta:
+        model = Recipe
+        fields = ('id', 'name', 'image', 'cooking_time')
+
+
+class ShoppingCartSerializer(ModelSerializer):
+    class Meta:
+        model = ShoppingCart
+        fields = '__all__'
+
+    def to_representation(self, instance):
+        request = self.context.get('request')
+        return RecipeShortSerializer(
+            instance.recipe, context={'request': request}
+        ).data
+
+
 class FavoriteSerializer(ModelSerializer):
-    ...
+    class Meta:
+        model = Favorite
+        fields = '__all__'
+
+    def to_representation(self, instance):
+        request = self.context.get('request')
+        return RecipeShortSerializer(
+            instance.recipe, context={'request': request}
+        ).data
