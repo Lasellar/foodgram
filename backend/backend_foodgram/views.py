@@ -1,6 +1,8 @@
 from django.http import FileResponse
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import status
+from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.viewsets import (
     ReadOnlyModelViewSet, GenericViewSet, ModelViewSet
@@ -16,7 +18,8 @@ from .models import (
 )
 from .serializers import (
     TagSerializer, IngredientSerializer, RecipeCreateSerializer,
-    IngredientGETSerializer, RecipeGETSerializer, RecipeShoppingCartSerializer
+    IngredientGETSerializer, RecipeGETSerializer, ShoppingCartSerializer,
+    FavoriteSerializer
 )
 
 
@@ -46,11 +49,60 @@ class RecipeViewSet(ModelViewSet):
             return RecipeGETSerializer
         return RecipeCreateSerializer
 
+    @action(detail=True, methods=('post', 'delete'))
+    def favorite(self, request, pk):
+        recipe = get_object_or_404(Recipe, id=pk)
+        if request.method == 'POST':
+            serializer = FavoriteSerializer(recipe)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(
+                    serializer.data, status=status.HTTP_201_CREATED
+                )
+            return Response(
+                serializer.errors, status=status.HTTP_400_BAD_REQUEST
+            )
 
-class ShoppingCartViewSet(ModelViewSet):
-    queryset = ShoppingCart.objects.all()
-    serializer_class = RecipeShoppingCartSerializer
-    http_method_names = ('get', 'post', 'delete')
+        if request.method == 'DELETE':
+            if not Favorite.objects.filter(
+                user=request.user, recipe=recipe
+            ).exists():
+                return Response(
+                    {'errors': 'Рецепта нет в списке покупок.'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            Favorite.objects.filter(
+                user=request.user, recipe=recipe
+            ).delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @action(detail=True, methods=('post', 'delete'))
+    def shopping_cart(self, request, pk):
+        recipe = get_object_or_404(Recipe, id=pk)
+        if request.methods == 'POST':
+            serializer = ShoppingCartSerializer(recipe)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(
+                    serializer.data, status=status.HTTP_201_CREATED
+                )
+            return Response(
+                serializer.errors, status=status.HTTP_400_BAD_REQUEST
+            )
+
+        if request.method == 'DELETE':
+            if not ShoppingCart.objects.filter(
+                    user=request.user, recipe=recipe
+            ).exists():
+                return Response(
+                    {'errors': 'Рецепта нет в списке покупок.'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            ShoppingCart.objects.filter(
+                user=request.user, recipe=recipe
+            ).delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
 
 
 

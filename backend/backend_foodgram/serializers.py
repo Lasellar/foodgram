@@ -127,7 +127,7 @@ class RecipeCreateSerializer(ModelSerializer):
         return instance
 
 
-class RecipeShoppingCartSerializer(ModelSerializer):
+class ShoppingCartSerializer(ModelSerializer):
     class Meta:
         model = Recipe
         fields = ('id', 'name', 'image', 'cooking_time')
@@ -152,3 +152,7 @@ class RecipeGETSerializer(ModelSerializer):
             'id', 'tags', 'ingredients', 'is_favorited',
             'name', 'image', 'text', 'cooking_time'
         )
+
+
+class FavoriteSerializer(ModelSerializer):
+    ...
