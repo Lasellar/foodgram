@@ -1,5 +1,7 @@
+from django.http import FileResponse
 from django.shortcuts import render
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.response import Response
 from rest_framework.viewsets import (
     ReadOnlyModelViewSet, GenericViewSet, ModelViewSet
 )
@@ -10,11 +12,11 @@ from rest_framework.permissions import IsAdminUser
 
 from .filters import IngredientFilter
 from .models import (
-    Tag, Ingredient, Recipe
+    Tag, Ingredient, Recipe, ShoppingCart, Favorite
 )
 from .serializers import (
     TagSerializer, IngredientSerializer, RecipeCreateSerializer,
-    IngredientGETSerializer, RecipeGETSerializer
+    IngredientGETSerializer, RecipeGETSerializer, RecipeShoppingCartSerializer
 )
 
 
@@ -43,6 +45,12 @@ class RecipeViewSet(ModelViewSet):
         if self.action in ('list', 'retrieve'):
             return RecipeGETSerializer
         return RecipeCreateSerializer
+
+
+class ShoppingCartViewSet(ModelViewSet):
+    queryset = ShoppingCart.objects.all()
+    serializer_class = RecipeShoppingCartSerializer
+    http_method_names = ('get', 'post', 'delete')
 
 
 
