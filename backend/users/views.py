@@ -8,7 +8,7 @@ from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 
 from .serializers import (
-    SignUpSerializer, UserSerializer
+    UserSignUpSerializer, UserSerializer
 )
 from .validators import SignUpValidator
 
@@ -19,7 +19,7 @@ User = get_user_model()
 
 class SignUpView(APIView, SignUpValidator):
     def post(self, request):
-        serializer = SignUpSerializer(data=request.data)
+        serializer = UserSignUpSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save()
             return Response(
@@ -38,10 +38,16 @@ class SignUpView(APIView, SignUpValidator):
 
 class LoginView(APIView):
     def post(self, request):
-        username = request.data.get('username')
+        email = request.data.get('email')
         password = request.data.get('password')
-        user = authenticate(username=username, password=password)
-        if user is not None:
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            return Response(
+                {"error": "User  not found"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        if user.check_password(password):
             token, created = Token.objects.get_or_create(user=user)
             return Response({'token': token.key}, status=status.HTTP_200_OK)
         return Response(
