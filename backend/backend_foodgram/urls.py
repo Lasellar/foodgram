@@ -27,7 +27,5 @@ urlpatterns = [
         'users/me/set_password/', UserPasswordReset.as_view(),
         name='reset-password'
     ),
-    # path('', include('djoser.urls')),
-    # path('auth/', include('djoser.urls.authtoken')),
     path('', include(router.urls))
 ]
