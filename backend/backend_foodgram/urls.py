@@ -3,21 +3,26 @@ from rest_framework.routers import DefaultRouter
 
 from .views import (
     TagViewSet, IngredientViewSet, RecipeViewSet,
-    UserSubscriptionView, UserSubscriptionsViewSet
+    UserSubscriptionView, UserSubscriptionsViewSet,
+    LoginView, LogOutView, UserViewSet, AvatarView
 )
 
 router = DefaultRouter()
 router.register(r'tags', TagViewSet, basename='tags')
 router.register(r'ingredients', IngredientViewSet, basename='ingredients')
 router.register(r'recipes', RecipeViewSet, basename='recipes')
+router.register(r'users', UserViewSet, basename='users')
 
 urlpatterns = [
+    path('auth/token/login/', LoginView.as_view(), name='token-obtain'),
+    path('auth/token/logout/', LogOutView.as_view(), name='token-obtain'),
     path(
         'users/subscriptions/',
         UserSubscriptionsViewSet.as_view({'get': 'list'})
     ),
     path('users/<int:user_id>/subscribe/', UserSubscriptionView.as_view()),
-    path('', include('djoser.urls')),
-    path('auth/', include('djoser.urls.authtoken')),
+    path('users/me/avatar', AvatarView.as_view(), name='avatar'),
+    # path('', include('djoser.urls')),
+    # path('auth/', include('djoser.urls.authtoken')),
     path('', include(router.urls))
 ]

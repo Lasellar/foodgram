@@ -137,6 +137,7 @@ EMPTY_VALUE = '---'
 
 DJOSER = {
     'LOGIN_FIELD': 'email',
+    'HIDE_USERS': False,
     'SERIALIZERS': {
         'user_create': 'backend_foodgram.serializers.UserSignUpSerializer',
         'user': 'backend_foodgram.serializers.UserGETSerializer',
