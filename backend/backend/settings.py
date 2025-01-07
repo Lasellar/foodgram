@@ -137,10 +137,11 @@ EMPTY_VALUE = '---'
 
 DJOSER = {
     'LOGIN_FIELD': 'email',
+    'HIDE_USERS': False,
     'SERIALIZERS': {
-        'user_create': 'users.serializers.UserSignUpSerializer',
-        'user': 'users.serializers.UserGETSerializer',
-        'current_user': 'users.serializers.UserGETSerializer'
+        'user_create': 'backend_foodgram.serializers.UserSignUpSerializer',
+        'user': 'backend_foodgram.serializers.UserGETSerializer',
+        'current_user': 'backend_foodgram.serializers.UserGETSerializer'
     },
     'PERMISSIONS': {
         'user_list': ('rest_framework.permissions.AllowAny',),
