@@ -181,31 +181,31 @@ class UserViewSet(ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserGETSerializer
     permission_classes = (IsAuthenticated,)
+    http_method_names = ('get', 'post')
 
     def get_object(self):
+        if self.kwargs.get('pk') == 'me':
+            return self.request.user
         return super().get_object()
 
     def list(self, request, *args, **kwargs):
-        if request.user.is_staff:
-            queryset = self.get_queryset()
-            serializer = self.get_serializer(queryset, many=True)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(
-            {'detail': 'Method Not Allowed'},
-            status=status.HTTP_405_METHOD_NOT_ALLOWED
-        )
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def create(self, request, *args, **kwargs):
+        user = request.user
+        current_password = request.data.get('current_password')
+        new_password = request.data.get('new_password')
+        if user.check_password(current_password):
+            user.set_password(new_password)
+            user.save()
+            return Response(status=status.HTTP_201_CREATED)
 
     def retrieve(self, request, *args, **kwargs):
-        if self.kwargs.get('pk') == 'me':
-            return self.request.user
-        if request.user.is_staff:
-            instance = self.get_object()
-            serializer = self.get_serializer(instance)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(
-            {'detail': 'Method Not Allowed'},
-            status=status.HTTP_405_METHOD_NOT_ALLOWED
-        )
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class AvatarView(APIView):
@@ -237,6 +237,18 @@ class AvatarView(APIView):
         user.avatar = None
         user.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class UserPasswordReset(APIView):
+    def post(self, request):
+        user = request.user
+        current_password = request.data.get('current_password')
+        new_password = request.data.get('new_password')
+        if user.check_password(current_password):
+            user.set_password(new_password)
+            user.save()
+            return Response(status=status.HTTP_201_CREATED)
+        return Response(status=status.HTTP_418_IM_A_TEAPOT)
 
 
 
