@@ -3,23 +3,26 @@ from django.core.files.base import ContentFile
 from django.shortcuts import get_object_or_404
 from rest_framework.authtoken.models import Token
 from rest_framework import status
+from rest_framework.mixins import ListModelMixin
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.viewsets import ModelViewSet
+from rest_framework.viewsets import ModelViewSet, GenericViewSet
 
 from .serializers import (
-    UserSignUpSerializer, UserSerializer
+    UserSignUpSerializer, UserSerializer, UserSubscribeSerializer,
+    UserSubscribeRepresentSerializer
 )
 from .validators import SignUpValidator
+from .models import Subscription
 
 import base64
 
 User = get_user_model()
 
 
-class SignUpView(APIView, SignUpValidator):
+"""class SignUpView(APIView, SignUpValidator):
     def post(self, request):
         serializer = UserSignUpSerializer(data=request.data)
         if serializer.is_valid():
@@ -125,10 +128,38 @@ class AvatarView(APIView):
         user.avatar.delete(save=False)
         user.avatar = None
         user.save()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(status=status.HTTP_204_NO_CONTENT)"""
 
 
-class SubscriptionView(APIView):
+class UserSubscriptionView(APIView):
+    http_method_names = ('post', 'delete')
+
     def post(self, request, user_id):
         author = get_object_or_404(User, id=user_id)
-        serializer = SubscribeSerializer
+        serializer = UserSubscribeSerializer(
+            data={'user': request.user.id, 'author': author.id},
+            context={'request': request}
+        )
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(
+            serializer.errors, status=status.HTTP_400_BAD_REQUEST
+        )
+
+    def delete(self, request, user_id):
+        user = request.user.id
+        if Subscription.objects.filter(user=user, author=user_id).exists():
+            Subscription.objects.get(user=user, author=user_id).delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(
+            {'errors': 'Вы не подписаны на этого пользователя.'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+
+class UserSubscriptionsViewSet(ListModelMixin, GenericViewSet):
+    serializer_class = UserSubscribeRepresentSerializer
+
+    def get_queryset(self):
+        return User.objects.filter(following__user=self.request.user)

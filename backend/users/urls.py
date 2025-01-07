@@ -1,15 +1,15 @@
 from django.urls import path, include
-from rest_framework.routers import DefaultRouter
 
 from .views import (
-    UserViewSet, LoginView
+    UserSubscriptionView, UserSubscriptionsViewSet
 )
 
-router = DefaultRouter()
-router.register(r'users', UserViewSet, basename='user')
-
 urlpatterns = [
-    path('auth/token/login/', LoginView.as_view(), name='token-obtain'),
+    path(
+        'users/subscriptions/',
+        UserSubscriptionsViewSet.as_view({'get': 'list'})
+    ),
+    path('users/<int:user_id>/subscribe/', UserSubscriptionView.as_view()),
     path('', include('djoser.urls')),
     path('auth/', include('djoser.urls.authtoken'))
 ]
