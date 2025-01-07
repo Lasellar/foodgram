@@ -13,7 +13,7 @@ from .models import (
     Tag, Ingredient, Recipe, RecipeIngredient,
     RecipeTag, Favorite, ShoppingCart
 )
-from ..users.models import Subscription
+from users.models import Subscription
 
 User = get_user_model()
 

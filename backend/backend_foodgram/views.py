@@ -14,7 +14,7 @@ from rest_framework.permissions import IsAdminUser
 
 from .filters import IngredientFilter
 from .models import Tag, Ingredient, Recipe, ShoppingCart, Favorite
-from ..users.models import Subscription
+from users.models import Subscription
 from .serializers import (
     TagSerializer, IngredientSerializer, RecipeCreateSerializer,
     RecipeGETSerializer, ShoppingCartSerializer, FavoriteSerializer,
