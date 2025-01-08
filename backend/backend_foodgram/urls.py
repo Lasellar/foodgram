@@ -13,16 +13,16 @@ router.register(r'tags', TagViewSet, basename='tags')
 router.register(r'ingredients', IngredientViewSet, basename='ingredients')
 router.register(r'recipes', RecipeViewSet, basename='recipes')
 router.register(r'users', UserViewSet, basename='users')
+router.register(
+    r'users/subscriptions', UserSubscriptionsViewSet,
+    basename='users-subscriptions'
+)
 
 urlpatterns = [
-    path('auth/token/login/', LoginView.as_view(), name='token-obtain'),
-    path('auth/token/logout/', LogOutView.as_view(), name='token-obtain'),
-    path(
-        'users/subscriptions/',
-        UserSubscriptionsViewSet.as_view({'get': 'list'})
-    ),
+    path('auth/token/login/', LoginView.as_view(), name='token-login'),
+    path('auth/token/logout/', LogOutView.as_view(), name='token-logout'),
     path('users/<int:user_id>/subscribe/', UserSubscriptionView.as_view()),
-    path('users/me/avatar', AvatarView.as_view(), name='avatar'),
+    path('users/me/avatar/', AvatarView.as_view(), name='avatar'),
     path(
         'users/me/set_password/', UserPasswordReset.as_view(),
         name='reset-password'
