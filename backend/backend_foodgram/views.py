@@ -135,8 +135,9 @@ class UserSubscriptionView(APIView):
 
     def delete(self, request, user_id):
         user = request.user.id
-        if Subscription.objects.filter(user=user, author=user_id).exists():
-            Subscription.objects.get(user=user, author=user_id).delete()
+        subscription = Subscription.objects.filter(user=user, author=user_id)
+        if subscription.exists():
+            subscription.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
         return Response(
             {'errors': 'Вы не подписаны на этого пользователя.'},
