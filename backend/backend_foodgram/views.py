@@ -117,6 +117,25 @@ class RecipeViewSet(ModelViewSet):
             return Response(status=status.HTTP_204_NO_CONTENT)
 
 
+class SignUpView(APIView, SignUpValidator):
+    def post(self, request):
+        serializer = SignUpSerializer(data=request.data)
+        if serializer.is_valid():
+            user = serializer.save()
+            return Response(
+                {
+                    'email': user.email,
+                    'id': user.id,
+                    'username': user.username,
+                    'first_name': user.first_name,
+                    'last_name': user.last_name,
+                    'password': serializer.validated_data['password']
+                },
+                status=status.HTTP_201_CREATED
+            )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
 class UserSubscriptionView(APIView):
     http_method_names = ('post', 'delete')
 
