@@ -1,4 +1,6 @@
 from django.contrib.auth import get_user_model
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
 from django.http import FileResponse
 from django.shortcuts import get_object_or_404
@@ -211,9 +213,9 @@ class UserViewSet(ModelViewSet):
     def get_permissions(self):
         if (
             self.request.method == 'POST'
-            and 'set_password' in self.request.path
+            and self.kwargs.get('pk') == 'set_password'
         ):
-            return (IsAuthenticated,)
+            return (IsAuthenticated(),)
         return super().get_permissions()
 
     def get_object(self):
@@ -227,14 +229,9 @@ class UserViewSet(ModelViewSet):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def create(self, request, *args, **kwargs):
-        if 'set_password' in request.path:
-            user = request.user
-            current_password = request.data.get('current_password')
-            new_password = request.data.get('new_password')
-            if user.check_password(current_password):
-                user.set_password(new_password)
-                user.save()
-                return Response(status=status.HTTP_201_CREATED)
+        """
+        Метод, отвечающий за регистрацию пользователя.
+        """
         serializer = UserSignUpSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -243,6 +240,34 @@ class UserViewSet(ModelViewSet):
                 status=status.HTTP_201_CREATED
             )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=False, methods=('post',), url_path='set_password')
+    def set_password(self, request):
+        """
+        Метод, отвечающий за смену пароля.
+        """
+        user = request.user
+        current_password = request.data.get('current_password')
+        new_password = request.data.get('new_password')
+        if current_password == new_password:
+            return Response(
+                {'detail': 'Пароли не должны совпадать.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        try:
+            validate_password(new_password)
+        except ValidationError as exception:
+            return Response(
+                {'detail': exception}, status=status.HTTP_400_BAD_REQUEST
+            )
+        if user.check_password(current_password):
+            user.set_password(new_password)
+            user.save()
+            return Response(status=status.HTTP_201_CREATED)
+        return Response(
+            {'detail': 'Введен неверный пароль.'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
