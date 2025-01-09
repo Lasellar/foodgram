@@ -23,9 +23,5 @@ urlpatterns = [
     path('auth/token/logout/', LogOutView.as_view(), name='token-logout'),
     path('users/<int:user_id>/subscribe/', UserSubscriptionView.as_view()),
     path('users/me/avatar/', AvatarView.as_view(), name='avatar'),
-    path(
-        'users/me/set_password/', UserPasswordReset.as_view(),
-        name='reset-password'
-    ),
     path('', include(router.urls))
 ]

@@ -20,7 +20,8 @@ from users.models import Subscription
 from .serializers import (
     TagSerializer, IngredientSerializer, RecipeCreateSerializer,
     RecipeGETSerializer, ShoppingCartSerializer, FavoriteSerializer,
-    UserSubscribeSerializer, UserSubscribeRepresentSerializer, UserGETSerializer
+    UserSubscribeSerializer, UserSubscribeRepresentSerializer,
+    UserGETSerializer, UserSignUpSerializer
 )
 from .validators import SignUpValidator
 
@@ -120,18 +121,11 @@ class RecipeViewSet(ModelViewSet):
 
 class SignUpView(APIView, SignUpValidator):
     def post(self, request):
-        serializer = SignUpSerializer(data=request.data)
+        serializer = UserSignUpSerializer(data=request.data)
         if serializer.is_valid():
-            user = serializer.save()
+            serializer.save()
             return Response(
-                {
-                    'email': user.email,
-                    'id': user.id,
-                    'username': user.username,
-                    'first_name': user.first_name,
-                    'last_name': user.last_name,
-                    'password': serializer.validated_data['password']
-                },
+                serializer.data,
                 status=status.HTTP_201_CREATED
             )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -201,8 +195,14 @@ class LogOutView(APIView):
 class UserViewSet(ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserGETSerializer
-    permission_classes = (IsAuthenticated,)
     http_method_names = ('get', 'post')
+
+    def get_permissions(self):
+        if (
+            self.request.method == 'POST'
+            and 'set_password' in self.request.path
+        ):
+            return (IsAuthenticated,)
 
     def get_object(self):
         if self.kwargs.get('pk') == 'me':
@@ -215,13 +215,22 @@ class UserViewSet(ModelViewSet):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def create(self, request, *args, **kwargs):
-        user = request.user
-        current_password = request.data.get('current_password')
-        new_password = request.data.get('new_password')
-        if user.check_password(current_password):
-            user.set_password(new_password)
-            user.save()
-            return Response(status=status.HTTP_201_CREATED)
+        if 'set_password' in request.path:
+            user = request.user
+            current_password = request.data.get('current_password')
+            new_password = request.data.get('new_password')
+            if user.check_password(current_password):
+                user.set_password(new_password)
+                user.save()
+                return Response(status=status.HTTP_201_CREATED)
+        serializer = UserSignUpSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(
+                serializer.data,
+                status=status.HTTP_201_CREATED
+            )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
