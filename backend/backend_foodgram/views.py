@@ -211,6 +211,9 @@ class UserViewSet(ModelViewSet):
     http_method_names = ('get', 'post')
 
     def get_permissions(self):
+        """
+        Метод, определяющий разрешения на доступ для конкретных методов.
+        """
         if (
             self.request.method == 'POST'
             and self.kwargs.get('pk') == 'set_password'
@@ -219,9 +222,15 @@ class UserViewSet(ModelViewSet):
         return super().get_permissions()
 
     def get_object(self):
+        """
+        Метод, возвращающий текущего пользователя/пользователя по его id.
+        Если пользователь не найден, возвращается False
+        """
         if self.kwargs.get('pk') == 'me':
             return self.request.user
-        return super().get_object()
+        if User.objects.filter(id=self.kwargs.get('pk')).exists():
+            return User.objects.get(id=self.kwargs.get('pk'))
+        return False
 
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
@@ -270,7 +279,16 @@ class UserViewSet(ModelViewSet):
         )
 
     def retrieve(self, request, *args, **kwargs):
+        """
+        Метод, отвечающий за получение профиля текущего пользователя и
+        получение пользователя по его id.
+        """
         instance = self.get_object()
+        if not instance:
+            return Response(
+                {'detail': 'Пользователь не найден.'},
+                status=status.HTTP_404_NOT_FOUND
+            )
         serializer = self.get_serializer(instance)
         return Response(serializer.data, status=status.HTTP_200_OK)
 

@@ -203,7 +203,7 @@ class UserGETSerializer(UserSerializer):
         model = User
         fields = (
             'email', 'id', 'username', 'first_name', 'last_name',
-            'is_subscribed'
+            'is_subscribed', 'avatar'
         )
 
     def get_is_subscribed(self, obj):
