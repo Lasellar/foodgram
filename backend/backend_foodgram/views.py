@@ -167,6 +167,9 @@ class UserSubscriptionsViewSet(ListModelMixin, GenericViewSet):
 
 
 class LoginView(APIView):
+    """
+    View-класс, отвечающий за создание/получение токена авторизации.
+    """
     def post(self, request):
         email = request.data.get('email')
         password = request.data.get('password')
@@ -187,7 +190,15 @@ class LoginView(APIView):
 
 
 class LogOutView(APIView):
+    """
+    View-класс, отвечающий за удаление токена.
+    """
     def post(self, request):
+        if not request.user.is_authenticated:
+            return Response(
+                {'detail': 'Пользователь не авторизован.'},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
         Token.objects.get(user=request.user).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -203,6 +214,7 @@ class UserViewSet(ModelViewSet):
             and 'set_password' in self.request.path
         ):
             return (IsAuthenticated,)
+        return super().get_permissions()
 
     def get_object(self):
         if self.kwargs.get('pk') == 'me':
