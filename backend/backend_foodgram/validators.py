@@ -19,24 +19,27 @@ class SignUpValidator:
             'email': 'Недопустимый email.',
             'password': 'Недопустимый пароль.'
         }
-
+        fields_with_errors = []
         for field, error_message in errors.items():
             value = data.get(field)
-            if (field == 'email') and (
-                User.objects.filter(email=value).exists()
+            if (
+                field == 'email'
+                and User.objects.filter(email=value).exists()
             ):
-                raise ValidationError(
-                    {'email': 'Пользователь с таким email уже существует.'}
-                )
-            if (field == 'username') and (
-                User.objects.filter(username=value).exists()
+                fields_with_errors.append(field)
+            if (
+                field == 'username'
+                and User.objects.filter(username=value).exists()
             ):
-                raise ValidationError(
-                    {
-                        'username': 'Пользователь с таким username '
-                                    'уже существует.'
-                    }
-                )
-            if value and value.lower() in settings.FORBIDDEN_CASES[field]:
-                raise ValidationError({field: error_message})
+                fields_with_errors.append(field)
+            if (
+                value.lower() in settings.FORBIDDEN_CASES[field]
+            ):
+                fields_with_errors.append(field)
+        if fields_with_errors:
+            raise ValidationError(
+                {'field_name': fields_with_errors}
+            )
         return data
+
+

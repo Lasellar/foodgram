@@ -22,6 +22,7 @@ from .serializers import (
     RecipeGETSerializer, ShoppingCartSerializer, FavoriteSerializer,
     UserSubscribeSerializer, UserSubscribeRepresentSerializer, UserGETSerializer
 )
+from .validators import SignUpValidator
 
 import base64
 
