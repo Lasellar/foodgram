@@ -220,6 +220,27 @@ class LogOutView(APIView):
 
 
 class UserViewSet(ModelViewSet):
+    """
+    Вьюсет для работы с пользователями.
+    Методы запросов и эндпоинты:
+
+    GET:
+    - users/
+    - users/me/
+    - users/<pk>/
+
+    POST:
+    - users/
+    - users/set_password/
+    - users/<pk>/subscribe/
+
+    PUT:
+    - users/me/avatar/
+
+    DELETE:
+    - users/me/avatar/
+    - users/<pk>/subscribe/
+    """
     queryset = User.objects.all()
     serializer_class = UserGETSerializer
     http_method_names = ('get', 'post', 'put', 'delete')
@@ -249,6 +270,10 @@ class UserViewSet(ModelViewSet):
         return False
 
     def list(self, request, *args, **kwargs):
+        """
+        Метод, отвечающий за получение списка пользователей.
+        Обрабатывает GET-запросы на эндпоинт users/.
+        """
         queryset = self.get_queryset()
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -256,6 +281,7 @@ class UserViewSet(ModelViewSet):
     def create(self, request, *args, **kwargs):
         """
         Метод, отвечающий за регистрацию пользователя.
+        Обрабатывает POST-запросы на эндпоинт users/.
         """
         serializer = UserSignUpSerializer(data=request.data)
         if serializer.is_valid():
@@ -266,10 +292,28 @@ class UserViewSet(ModelViewSet):
             )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    def retrieve(self, request, *args, **kwargs):
+        """
+        Метод, отвечающий за получение профиля текущего пользователя и
+        получение пользователя по его id.
+        Обрабатывает GET-запросы на эндпоинты:
+        users/me/
+        users/<pk>/
+        """
+        instance = self.get_object()
+        if not instance:
+            return Response(
+                {'detail': 'Пользователь не найден.'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
     @action(detail=False, methods=('post',), url_path='set_password')
     def set_password(self, request):
         """
         Метод, отвечающий за смену пароля.
+        Обрабатывает POST запросы на эндпоинт users/set_password/.
         """
         user = request.user
         current_password = request.data.get('current_password')
@@ -294,22 +338,12 @@ class UserViewSet(ModelViewSet):
             status=status.HTTP_400_BAD_REQUEST
         )
 
-    def retrieve(self, request, *args, **kwargs):
-        """
-        Метод, отвечающий за получение профиля текущего пользователя и
-        получение пользователя по его id.
-        """
-        instance = self.get_object()
-        if not instance:
-            return Response(
-                {'detail': 'Пользователь не найден.'},
-                status=status.HTTP_404_NOT_FOUND
-            )
-        serializer = self.get_serializer(instance)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
     @action(detail=False, methods=('put', 'delete'), url_path='me/avatar')
     def avatar(self, request):
+        """
+        Метод, отвечающий за добавление и удаление аватарки.
+        Обрабатывает PUT и DELETE запросы на эндпоинт users/me/avatar/.
+        """
         user = request.user
         if request.method == 'PUT':
             avatar = request.data.get('avatar')
@@ -337,6 +371,10 @@ class UserViewSet(ModelViewSet):
 
     @action(detail=True, methods=('post', 'delete'), url_path='subscribe')
     def subscribe(self, request, pk):
+        """
+        Метод, отвечающий за создание и удаление подписки на пользователя.
+        Обрабатывает POST и DELETE запросы на эндпоинт users/<pk>/subscribe/.
+        """
         user = request.user.id
         author = User.objects.filter(id=pk)
         if not author.exists():
