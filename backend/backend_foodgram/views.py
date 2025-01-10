@@ -19,6 +19,8 @@ from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from .filters import IngredientFilter
 from .models import Tag, Ingredient, Recipe, ShoppingCart, Favorite
 from users.models import Subscription
+
+from .permissions import IsAuthenticatedAndAuthor
 from .serializers import (
     TagSerializer, IngredientSerializer, RecipeCreateSerializer,
     RecipeGETSerializer, ShoppingCartSerializer, FavoriteSerializer,
@@ -65,13 +67,13 @@ class RecipeViewSet(ModelViewSet):
         """
         if (
             self.request.method == 'POST'
-            or self.request.method == 'DELETE'
         ):
             return (IsAuthenticated(),)
         if (
             self.request.method == 'PATCH'
+            or self.request.method == 'DELETE'
         ):
-            return (IsAuthenticated,)
+            return (IsAuthenticatedAndAuthor(),)
         return super().get_permissions()
 
     @action(detail=True, methods=('post', 'delete'))
