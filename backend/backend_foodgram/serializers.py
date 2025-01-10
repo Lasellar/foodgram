@@ -222,26 +222,18 @@ class UserSubscribeRepresentSerializer(UserGETSerializer):
         model = User
         fields = (
             'email', 'id', 'username', 'first_name', 'last_name',
-            'is_subscribed', 'recipes', 'recipes_count'
+            'is_subscribed', 'recipes', 'recipes_count', 'avatar'
         )
         read_only_fields = (
             'email', 'username', 'first_name', 'last_name',
-            'is_subscribed', 'recipes', 'recipes_count'
+            'is_subscribed', 'recipes', 'recipes_count', 'avatar'
         )
 
     def get_recipes(self, obj):
-        request = self.context.get('request')
-        recipes_limit = None
-        recipes = obj.recipes.all()
+        return RecipeShortSerializer(obj.recipes.all(), many=True).data
 
-        if request:
-            recipes_limit = request.query_params.get('recipes_limit')
-        if recipes_limit:
-            recipes = obj.recipes.all()[:int(recipes_limit)]
-
-        return RecipeShortSerializer(
-            recipes, many=True, context={'request': request}
-        ).data
+    def get_recipes_count(self, obj):
+        return len(obj.recipes.all())
 
 
 class UserSubscribeSerializer(ModelSerializer):
