@@ -30,6 +30,8 @@ from .serializers import (
 from .validators import SignUpValidator
 
 import base64
+import random
+import string
 
 User = get_user_model()
 
@@ -137,6 +139,26 @@ class RecipeViewSet(ModelViewSet):
                 user=request.user, recipe=recipe
             ).delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @action(detail=True, methods=('get',), url_path='get-link')
+    def get_short_link(self, request, pk):
+        recipe = Recipe.objects.filter(id=pk).exists()
+        if not recipe:
+            return Response(
+                {'detail': 'Страница не найдена.'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        random.seed(request.path)
+        short_link = ''.join(
+            [
+                random.choice(string.ascii_letters + string.digits)
+                for _ in range(3)
+            ]
+        )
+        return Response(
+            {'short-link': short_link}, status=status.HTTP_200_OK
+        )
+
 
 
 class SignUpView(APIView, SignUpValidator):
