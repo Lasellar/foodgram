@@ -132,10 +132,20 @@ class SignUpView(APIView, SignUpValidator):
 
 
 class UserSubscriptionView(APIView):
+    """
+    Вьюсет, отвечающий за создание/удаление подписки на пользователя по id.
+    """
     http_method_names = ('post', 'delete')
+    permission_classes = (IsAuthenticated,)
 
     def post(self, request, user_id):
-        author = get_object_or_404(User, id=user_id)
+        """Метод, отвечающий за создание подписки."""
+        author = User.objects.filter(id=user_id)
+        if not author.exists():
+            return Response(
+                {'detail': 'Пользователь не найден.'},
+                status=status.HTTP_404_NOT_FOUND
+            )
         serializer = UserSubscribeSerializer(
             data={'user': request.user.id, 'author': author.id},
             context={'request': request}
@@ -148,6 +158,7 @@ class UserSubscriptionView(APIView):
         )
 
     def delete(self, request, user_id):
+        """Метод, отвечающий за удаление подписки."""
         user = request.user.id
         subscription = Subscription.objects.filter(user=user, author=user_id)
         if subscription.exists():
@@ -165,6 +176,7 @@ class UserSubscriptionsViewSet(ListModelMixin, GenericViewSet):
     """
     serializer_class = UserSubscribeRepresentSerializer
     permission_classes = (IsAuthenticated,)
+    pagination_class = None
 
     def get_queryset(self):
         return User.objects.filter(following__user=self.request.user)

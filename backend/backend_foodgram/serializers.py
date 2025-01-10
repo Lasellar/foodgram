@@ -242,11 +242,8 @@ class UserSubscribeSerializer(ModelSerializer):
         fields = '__all__'
 
     def validate(self, data):
-        request = self.context.get('request')
-        if request.user == data['author']:
-            raise ValidationError(
-                'Вы пытаетесь подписаться на себя.'
-            )
+        if data['user'] == data['author']:
+            raise ValidationError('Ошибка подписки.')
         return data
 
     def to_representation(self, instance):
