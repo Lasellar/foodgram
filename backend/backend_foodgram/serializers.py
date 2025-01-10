@@ -69,12 +69,22 @@ class RecipeCreateSerializer(ModelSerializer):
         queryset=Tag.objects.all(), many=True
     )
     image = Base64ImageField()
+    is_favorited = SerializerMethodField()
+    is_in_shopping_cart = SerializerMethodField()
 
     class Meta:
         model = Recipe
         fields = (
-            'id', 'ingredients', 'tags', 'image', 'name', 'text', 'cooking_time'
+            'id', 'tags', 'author', 'ingredients', 'is_favorited',
+            'is_in_shopping_cart', 'name', 'image',  'text', 'cooking_time'
         )
+        read_only_fields = ('author',)
+
+    def get_is_favorited(self, obj):
+        return False
+
+    def get_is_in_shopping_cart(self, obj):
+        return False
 
     def create(self, validated_data):
         ingredients_data = validated_data.pop('recipeingredients')
@@ -126,27 +136,6 @@ class RecipeCreateSerializer(ModelSerializer):
                 )
                 RecipeIngredient.objects.bulk_create(ingredients_list)
         return instance
-
-
-class RecipeGETSerializer(ModelSerializer):
-    ingredients = IngredientGETSerializer(many=True, source='recipeingredients')
-    tags = TagSerializer(many=True, read_only=True)
-    # author = UserSerializer(read_only=True)
-    is_favorited = SerializerMethodField()
-    image = Base64ImageField(required=False)
-
-    def get_is_favorited(self, obj):
-        request = self.context.get('request')
-        return Favorite.objects.filter(
-            user=request.user.id, recipe=obj
-        ).exists()
-
-    class Meta:
-        model = Recipe
-        fields = (
-            'id', 'tags', 'ingredients', 'is_favorited',
-            'name', 'image', 'text', 'cooking_time'
-        )
 
 
 class RecipeShortSerializer(ModelSerializer):
@@ -252,3 +241,32 @@ class UserSubscribeSerializer(ModelSerializer):
         return UserSubscribeRepresentSerializer(
             author, context={'request': request}
         ).data
+
+
+class RecipeGETSerializer(ModelSerializer):
+    ingredients = IngredientGETSerializer(many=True, source='recipeingredients')
+    tags = TagSerializer(many=True, read_only=True)
+    author = UserGETSerializer(read_only=True)
+    is_favorited = SerializerMethodField()
+    is_in_shopping_cart = SerializerMethodField()
+    image = Base64ImageField(required=False)
+
+    class Meta:
+        model = Recipe
+        fields = (
+            'id', 'tags', 'author', 'ingredients', 'is_favorited',
+            'is_in_shopping_cart', 'name', 'image', 'text', 'cooking_time'
+        )
+
+    def get_is_favorited(self, obj):
+        user_id = self.context.get('request').user.id
+        return Favorite.objects.filter(
+            user=user_id, recipe=obj
+        ).exists()
+
+    def get_is_in_shopping_cart(self, obj):
+        user_id = self.context.get('request').user.id
+        return ShoppingCart.objects.filter(
+            user=user_id, recipe=obj
+        ).exists()
+

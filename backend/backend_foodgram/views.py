@@ -56,6 +56,24 @@ class RecipeViewSet(ModelViewSet):
             return RecipeGETSerializer
         return RecipeCreateSerializer
 
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
+
+    def get_permissions(self):
+        """
+        Метод, определяющий разрешения на доступ для конкретных методов.
+        """
+        if (
+            self.request.method == 'POST'
+            or self.request.method == 'DELETE'
+        ):
+            return (IsAuthenticated(),)
+        if (
+            self.request.method == 'PATCH'
+        ):
+            return (IsAuthenticated,)
+        return super().get_permissions()
+
     @action(detail=True, methods=('post', 'delete'))
     def favorite(self, request, pk):
         recipe = get_object_or_404(Recipe, id=pk)
