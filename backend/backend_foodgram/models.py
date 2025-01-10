@@ -122,3 +122,19 @@ class ShoppingCart(Model):
 
     def __str__(self):
         return f'{self.recipe.name} в списке покупок у {self.user.username}'
+
+
+class RecipeShortLink(Model):
+    recipe = ForeignKey(
+        Recipe, on_delete=CASCADE, related_name='fullrecipe'
+    )
+    short_link = CharField(max_length=4, unique=True)
+
+    class Meta:
+        constraints = [
+            UniqueConstraint(
+                fields=('recipe', 'short_link'),
+                name='unique_recipeshortlink_recipe_shortlink'
+            ),
+        ]
+

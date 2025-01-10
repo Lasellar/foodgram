@@ -17,7 +17,7 @@ from rest_framework.mixins import ListModelMixin
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 
 from .filters import IngredientFilter
-from .models import Tag, Ingredient, Recipe, ShoppingCart, Favorite
+from .models import Tag, Ingredient, Recipe, ShoppingCart, Favorite, RecipeShortLink
 from users.models import Subscription
 
 from .permissions import IsAuthenticatedAndAuthor
@@ -27,6 +27,7 @@ from .serializers import (
     UserSubscribeSerializer, UserSubscribeRepresentSerializer,
     UserGETSerializer, UserSignUpSerializer
 )
+from .utils import generate_short_link, generate_full_short_url
 from .validators import SignUpValidator
 
 import base64
@@ -148,17 +149,20 @@ class RecipeViewSet(ModelViewSet):
                 {'detail': 'Страница не найдена.'},
                 status=status.HTTP_404_NOT_FOUND
             )
-        random.seed(request.path)
-        short_link = ''.join(
-            [
-                random.choice(string.ascii_letters + string.digits)
-                for _ in range(3)
-            ]
-        )
+        if RecipeShortLink.objects.filter(recipe=recipe).exists():
+            return Response(
+                generate_full_short_url(
+                    RecipeShortLink.objects.get(recipe=recipe).short_link
+                ),
+                status=status.HTTP_200_OK
+            )
+        short_link = generate_short_link(request)
+        while RecipeShortLink.objects.filter(short_link=short_link).exists():
+            short_link = generate_short_link(request)
         return Response(
-            {'short-link': short_link}, status=status.HTTP_200_OK
+            generate_full_short_url(short_link),
+            status=status.HTTP_200_OK
         )
-
 
 
 class SignUpView(APIView, SignUpValidator):
