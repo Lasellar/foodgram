@@ -4,8 +4,7 @@ from rest_framework.routers import DefaultRouter
 from .views import (
     TagViewSet, IngredientViewSet, RecipeViewSet,
     UserSubscriptionView, UserSubscriptionsViewSet,
-    LoginView, LogOutView, UserViewSet, AvatarView,
-    UserPasswordReset
+    LoginView, LogOutView, UserViewSet,
 )
 
 router = DefaultRouter()
@@ -22,7 +21,5 @@ router.register(r'users', UserViewSet, basename='users')
 urlpatterns = [
     path('auth/token/login/', LoginView.as_view(), name='token-login'),
     path('auth/token/logout/', LogOutView.as_view(), name='token-logout'),
-    path('users/<int:user_id>/subscribe/', UserSubscriptionView.as_view()),
-    path('users/me/avatar/', AvatarView.as_view(), name='avatar'),
     path('', include(router.urls))
 ]

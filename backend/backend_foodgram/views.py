@@ -222,7 +222,7 @@ class LogOutView(APIView):
 class UserViewSet(ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserGETSerializer
-    http_method_names = ('get', 'post')
+    http_method_names = ('get', 'post', 'put', 'delete')
 
     def get_permissions(self):
         """
@@ -231,6 +231,8 @@ class UserViewSet(ModelViewSet):
         if (
             self.request.method == 'POST'
             and self.kwargs.get('pk') == 'set_password'
+        ) or (
+            'avatar' in self.request.path
         ):
             return (IsAuthenticated(),)
         return super().get_permissions()
@@ -306,36 +308,65 @@ class UserViewSet(ModelViewSet):
         serializer = self.get_serializer(instance)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-
-class AvatarView(APIView):
-    permission_classes = (IsAuthenticated,)
-
-    def put(self, request):
+    @action(detail=False, methods=('put', 'delete'), url_path='me/avatar')
+    def avatar(self, request):
         user = request.user
-        avatar = request.data.get('avatar')
-        if avatar:
-            if avatar.startswith('data:image/'):
-                frmt, imgstr = avatar.split(';base64,')
-                ext = frmt.split('/')[-1]
-                avatar_file = ContentFile(
-                    base64.b64decode(imgstr),
-                    name=f'{user.username}.{ext}'
-                )
-                user.avatar.save(f'{user.username}.{ext}', avatar_file)
-                return Response(
-                    {'avatar': user.avatar.url},
-                    status=status.HTTP_201_CREATED)
-        return Response(
-            {'error': 'No avatar provided'},
-            status=status.HTTP_400_BAD_REQUEST
-        )
-
-    def delete(self, request):
+        if request.method == 'PUT':
+            avatar = request.data.get('avatar')
+            if avatar:
+                if avatar.startswith('data:image/'):
+                    frmt, imgstr = avatar.split(';base64,')
+                    ext = frmt.split('/')[-1]
+                    avatar_file = ContentFile(
+                        base64.b64decode(imgstr),
+                        name=f'{user.username}.{ext}'
+                    )
+                    user.avatar.save(f'{user.username}.{ext}', avatar_file)
+                    return Response(
+                        {'avatar': user.avatar.url},
+                        status=status.HTTP_201_CREATED)
+            return Response(
+                {'field_errors': ['avatar']},
+                status=status.HTTP_400_BAD_REQUEST
+            )
         user = request.user
         user.avatar.delete(save=False)
         user.avatar = None
         user.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @action(detail=True, methods=('post', 'delete'), url_path='subscribe')
+    def subscribe(self, request, pk):
+        user = request.user.id
+        author = User.objects.filter(id=pk)
+        if not author.exists():
+            return Response(
+                {'detail': 'Пользователь не найден.'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        if request.method == 'DELETE':
+            subscription = Subscription.objects.filter(
+                user=user, author=pk
+            )
+            if subscription.exists():
+                subscription.delete()
+                return Response(status=status.HTTP_204_NO_CONTENT)
+            return Response(
+                {'errors': 'Вы не подписаны на этого пользователя.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        serializer = UserSubscribeSerializer(
+            data={'user': user, 'author': pk},
+            context={'request': request}
+        )
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(
+            serializer.errors, status=status.HTTP_400_BAD_REQUEST
+        )
 
 
 class UserPasswordReset(APIView):
