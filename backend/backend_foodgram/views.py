@@ -79,6 +79,12 @@ class RecipeViewSet(ModelViewSet):
             return (IsAuthenticatedAndAuthor(),)
         return super().get_permissions()
 
+    def get_object(self):
+        if '/s/' in self.request.path:
+            pk = self.kwargs.get('pk')
+            return get_object_or_404(RecipeShortLink, short_link=pk).recipe
+        return super().get_object()
+
     @action(detail=True, methods=('post', 'delete'))
     def favorite(self, request, pk):
         recipe = get_object_or_404(Recipe, id=pk)
@@ -159,6 +165,8 @@ class RecipeViewSet(ModelViewSet):
         short_link = generate_short_link(request)
         while RecipeShortLink.objects.filter(short_link=short_link).exists():
             short_link = generate_short_link(request)
+        recipe = Recipe.objects.get(id=pk)
+        RecipeShortLink.objects.create(recipe=recipe, short_link=short_link)
         return Response(
             generate_full_short_url(short_link),
             status=status.HTTP_200_OK
