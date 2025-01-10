@@ -160,7 +160,11 @@ class UserSubscriptionView(APIView):
 
 
 class UserSubscriptionsViewSet(ListModelMixin, GenericViewSet):
+    """
+    Вьюсет, отвечающий за получение списка подписок пользователя.
+    """
     serializer_class = UserSubscribeRepresentSerializer
+    permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
         return User.objects.filter(following__user=self.request.user)
