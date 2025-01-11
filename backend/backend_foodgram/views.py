@@ -20,6 +20,7 @@ from .filters import IngredientFilter, RecipeFilter
 from .models import Tag, Ingredient, Recipe, ShoppingCart, Favorite, RecipeShortLink
 from users.models import Subscription
 
+from .pagination import PageLimitAndRecipesLimitPagination
 from .permissions import IsAuthenticatedAndAuthor
 from .serializers import (
     TagSerializer, IngredientSerializer, RecipeCreateSerializer,
@@ -239,7 +240,7 @@ class UserSubscriptionsViewSet(ListModelMixin, GenericViewSet):
     """
     serializer_class = UserSubscribeRepresentSerializer
     permission_classes = (IsAuthenticated,)
-    pagination_class = None
+    pagination_class = PageLimitAndRecipesLimitPagination
 
     def get_queryset(self):
         return User.objects.filter(following__user=self.request.user)

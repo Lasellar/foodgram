@@ -116,7 +116,7 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',
     ],
 
-    'DEFAULT_PAGINATION_CLASS': 'backend_foodgram.pagination.PageLimitpagination',
+    'DEFAULT_PAGINATION_CLASS': 'backend_foodgram.pagination.PageLimitPagination',
     'PAGE_SIZE': 10,
 
 }

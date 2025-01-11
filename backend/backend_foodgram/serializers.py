@@ -219,7 +219,13 @@ class UserSubscribeRepresentSerializer(UserGETSerializer):
         )
 
     def get_recipes(self, obj):
-        return RecipeShortSerializer(obj.recipes.all(), many=True).data
+        request = self.context.get('request')
+        recipes_limit = request.query_params.get('recipes_limit')
+        recipes_limit = int(recipes_limit) if recipes_limit is not None else None
+        recipes = obj.recipes.all()
+        if recipes_limit:
+            recipes = recipes[:recipes_limit]
+        return RecipeShortSerializer(recipes, many=True).data
 
     def get_recipes_count(self, obj):
         return len(obj.recipes.all())
