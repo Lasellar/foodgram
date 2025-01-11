@@ -105,10 +105,10 @@ class Favorite(Model):
 
 class ShoppingCart(Model):
     user = ForeignKey(
-        User, on_delete=CASCADE, related_name='shopping_carts'
+        User, on_delete=CASCADE, related_name='shopping_carts_user'
     )
     recipe = ForeignKey(
-        Recipe, on_delete=CASCADE, related_name='shopping_carts'
+        Recipe, on_delete=CASCADE, related_name='shopping_carts_recipe'
     )
 
     class Meta:

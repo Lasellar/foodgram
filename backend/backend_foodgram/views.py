@@ -54,6 +54,7 @@ class IngredientViewSet(ReadOnlyModelViewSet):
 class RecipeViewSet(ModelViewSet):
     queryset = Recipe.objects.all()
     filter_backends = (DjangoFilterBackend,)
+    filterset_fields = ('tags',)
     http_method_names = ('get', 'post', 'patch', 'delete')
 
     def get_serializer_class(self):
@@ -70,6 +71,14 @@ class RecipeViewSet(ModelViewSet):
         """
         if (
             self.request.method == 'POST'
+            or (
+                self.request.method == 'DELETE'
+                and
+                (
+                    '/favorite/' in self.request.path
+                    or '/shopping_cart/' in self.request.path
+                )
+            )
         ):
             return (IsAuthenticated(),)
         if (
@@ -108,7 +117,7 @@ class RecipeViewSet(ModelViewSet):
                 user=request.user, recipe=recipe
             ).exists():
                 return Response(
-                    {'errors': 'Рецепта нет в списке покупок.'},
+                    {'errors': 'Рецепта нет в избранном.'},
                     status=status.HTTP_400_BAD_REQUEST
                 )
             Favorite.objects.filter(
