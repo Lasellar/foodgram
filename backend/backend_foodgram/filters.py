@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 from django_filters import FilterSet
 from django_filters import (
-    CharFilter, MultipleChoiceFilter, BooleanFilter
+    CharFilter, MultipleChoiceFilter, BooleanFilter, NumberFilter
 )
 
 from .models import Tag, Ingredient, Recipe
@@ -22,12 +22,12 @@ class RecipeFilter(FilterSet):
     """
     Класс, отвечающий за фильтрацию рецептов по параметрам запроса.
     """
-    is_favorited = BooleanFilter(method='get_is_favorited')
-    is_in_shopping_cart = BooleanFilter(method='get_is_in_shopping_cart')
+    is_favorited = NumberFilter(method='get_is_favorited')
+    is_in_shopping_cart = NumberFilter(method='get_is_in_shopping_cart')
 
     class Meta:
         model = Recipe
-        fields = ('tags', 'author')
+        fields = ('author', 'tags')
 
     def get_is_favorited(self, queryset, name, value):
         if value:
