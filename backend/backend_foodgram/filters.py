@@ -1,9 +1,13 @@
-from django_filters.rest_framework import FilterSet
-from django_filters.rest_framework.filters import (
+from django.contrib.auth import get_user_model
+from django_filters import FilterSet
+from django_filters import (
     CharFilter, MultipleChoiceFilter, BooleanFilter
 )
 
 from .models import Tag, Ingredient, Recipe
+
+
+User = get_user_model()
 
 
 class IngredientFilter(FilterSet):
@@ -15,15 +19,11 @@ class IngredientFilter(FilterSet):
 
 
 class RecipeFilter(FilterSet):
-    tags = MultipleChoiceFilter(
-        queryset=Tag.objects.all(),
-        field_name='tags__name'
-    )
+    """
+    Класс, отвечающий за фильтрацию рецептов по параметрам запроса.
+    """
     is_favorited = BooleanFilter(method='get_is_favorited')
     is_in_shopping_cart = BooleanFilter(method='get_is_in_shopping_cart')
-    author = CharFilter(
-        field_name='author__username'
-    )
 
     class Meta:
         model = Recipe

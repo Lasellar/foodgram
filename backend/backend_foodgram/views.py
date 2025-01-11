@@ -16,7 +16,7 @@ from rest_framework.viewsets import (
 from rest_framework.mixins import ListModelMixin
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 
-from .filters import IngredientFilter
+from .filters import IngredientFilter, RecipeFilter
 from .models import Tag, Ingredient, Recipe, ShoppingCart, Favorite, RecipeShortLink
 from users.models import Subscription
 
@@ -54,7 +54,7 @@ class IngredientViewSet(ReadOnlyModelViewSet):
 class RecipeViewSet(ModelViewSet):
     queryset = Recipe.objects.all()
     filter_backends = (DjangoFilterBackend,)
-    filterset_fields = ('tags',)
+    filterset_class = RecipeFilter
     http_method_names = ('get', 'post', 'patch', 'delete')
 
     def get_serializer_class(self):
