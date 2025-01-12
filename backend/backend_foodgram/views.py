@@ -28,7 +28,7 @@ from .serializers import (
     UserSubscribeSerializer, UserSubscribeRepresentSerializer,
     UserGETSerializer, UserSignUpSerializer
 )
-from .utils import generate_short_link, generate_full_short_url
+from .utils import generate_short_link, generate_full_short_url, get_ingredients_list
 from .validators import SignUpValidator
 
 import base64
@@ -179,6 +179,15 @@ class RecipeViewSet(ModelViewSet):
         RecipeShortLink.objects.create(recipe=recipe, short_link=short_link)
         return Response(
             generate_full_short_url(short_link),
+            status=status.HTTP_200_OK
+        )
+
+    @action(
+        detail=False, methods=('get',), url_path='download_shopping_cart'
+    )
+    def download_shopping_cart(self, request):
+        return Response(
+            {'result': get_ingredients_list(request)},
             status=status.HTTP_200_OK
         )
 
