@@ -47,7 +47,10 @@ def get_ingredients_list(request):
                 None
             )
             if existing_ingredient:
-                existing_ingredient['amount'] += ingredient_data['amount']
+                existing_ingredient['amount'] = round(
+                    existing_ingredient['amount'] +
+                    ingredient_data['amount'], 3
+                )
             else:
                 ingredients.append(ingredient_data)
     _string = ''
@@ -57,4 +60,4 @@ def get_ingredients_list(request):
             f'{ingredient["amount"]} '
             f'{ingredient["measurement_unit"]}\n'
         )
-    return _string
+    return ingredients
