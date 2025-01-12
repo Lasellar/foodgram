@@ -24,31 +24,37 @@ def generate_full_short_url(link):
 
 
 def get_ingredients_list(request):
-    ingredients = [{'123': 123}]
+    ingredients = []
     shopping_cart_recipes = ShoppingCart.objects.filter(
         user=request.user
     ).select_related('recipe')
-    for recipe_item in shopping_cart_recipes:
-        recipe_ingredients = recipe_item.recipe.recipeingredients.all()
+    for item in shopping_cart_recipes:
+        recipe_ingredients = item.recipe.recipeingredients.all()
         for recipe_ingredient in recipe_ingredients:
-            ingredient_name = recipe_ingredient.ingredient.name
-            ingredient_amount = RecipeIngredient.objects.get(
-                recipe=recipe_item.id, ingredient=recipe_ingredient.ingredient.id
-            ).amount
-            ingredient_measurement_unit = recipe_ingredient.ingredient.measurement_unit
-            for ingredient in ingredients:
-                ingredient_keys = ingredient.keys()
-                if (
-                    str(ingredient_name) in ingredient_keys
-                    and str(ingredient_measurement_unit) in ingredient_keys
-                ):
-                    ingredient['amount'] += ingredient_amount
-                else:
-                    ingredients.append(
-                        {
-                            'name': ingredient_name,
-                            'measurement_unit': ingredient_measurement_unit,
-                            'amount': ingredient_amount
-                        }
-                    )
-    return ingredients
+            ingredient_data = {
+                'name': recipe_ingredient.ingredient.name,
+                'measurement_unit':
+                    recipe_ingredient.ingredient.measurement_unit,
+                'amount': recipe_ingredient.amount
+            }
+            existing_ingredient = next(
+                (
+                    ing for ing in ingredients if
+                    ing['name'] == ingredient_data['name']
+                    and ing['measurement_unit']
+                    == ingredient_data['measurement_unit']
+                ),
+                None
+            )
+            if existing_ingredient:
+                existing_ingredient['amount'] += ingredient_data['amount']
+            else:
+                ingredients.append(ingredient_data)
+    _string = ''
+    for ingredient in ingredients:
+        _string += (
+            f'{ingredient["name"]} - '
+            f'{ingredient["amount"]} '
+            f'{ingredient["measurement_unit"]}\n'
+        )
+    return _string
