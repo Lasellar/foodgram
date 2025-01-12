@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+ROOT_DIR = BASE_DIR.parent
 load_dotenv()
 SECRET_KEY = os.environ.get('SECRET_KEY')
 
@@ -148,5 +149,8 @@ DJOSER = {
         'user': ('djoser.permissions.CurrentUserOrAdminOrReadOnly',)
     }
 }
+
+
+DATAFILES_DIR = ROOT_DIR / 'data'
 
 

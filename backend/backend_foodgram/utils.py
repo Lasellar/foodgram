@@ -56,7 +56,7 @@ def get_ingredients_list(request):
     _string = ''
     for ingredient in ingredients:
         _string += (
-            f'{ingredient["name"]} - '
+            f'{ingredient["name"]} — '
             f'{ingredient["amount"]} '
             f'{ingredient["measurement_unit"]}\n'
         )
