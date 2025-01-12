@@ -5,7 +5,8 @@ from django.core.files.base import ContentFile
 from django.shortcuts import get_object_or_404
 from rest_framework.serializers import (
     ModelSerializer, ImageField, IntegerField, PrimaryKeyRelatedField,
-    CharField, Serializer, SerializerMethodField, ValidationError
+    CharField, Serializer, SerializerMethodField, ValidationError,
+    FloatField
 )
 from djoser.serializers import UserCreateSerializer, UserSerializer
 
@@ -46,7 +47,7 @@ class IngredientGETSerializer(ModelSerializer):
     measurement_unit = CharField(
         source='ingredient.measurement_unit', read_only=True
     )
-    amount = IntegerField(read_only=True)
+    amount = FloatField(read_only=True)
 
     class Meta:
         model = RecipeIngredient
@@ -56,7 +57,7 @@ class IngredientGETSerializer(ModelSerializer):
 class IngredientPOSTSerializer(Serializer):
     """Сериализатор для добавления ингредиента в рецепт."""
     id = IntegerField()
-    amount = IntegerField()
+    amount = FloatField()
 
     class Meta:
         model = RecipeIngredient

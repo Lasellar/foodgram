@@ -3,6 +3,7 @@ from django.core.validators import MinValueValidator
 from django.db.models import (
     Model, CharField, SlugField, Choices, ManyToManyField, TextField,
     IntegerField, ImageField, ForeignKey, CASCADE, UniqueConstraint,
+    FloatField
 )
 
 User = get_user_model()
@@ -67,7 +68,7 @@ class RecipeIngredient(Model):
     ingredient = ForeignKey(
         Ingredient, on_delete=CASCADE, related_name='recipeingredients'
     )
-    amount = IntegerField()
+    amount = FloatField()
 
     class Meta:
         ordering = ('-id',)
