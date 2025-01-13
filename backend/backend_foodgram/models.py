@@ -3,6 +3,7 @@ from django.core.validators import MinValueValidator
 from django.db.models import (
     Model, CharField, SlugField, Choices, ManyToManyField, TextField,
     IntegerField, ImageField, ForeignKey, CASCADE, UniqueConstraint,
+    FloatField
 )
 
 User = get_user_model()
@@ -36,9 +37,9 @@ class Ingredient(Model):
 
 
 class Recipe(Model):
-    # author = ForeignKey(
-    #    User, on_delete=CASCADE, related_name='recipes'
-    # )
+    author = ForeignKey(
+       User, on_delete=CASCADE, related_name='recipes'
+    )
     name = CharField(verbose_name='Название', max_length=256)
     text = TextField(verbose_name='Описание')
     cooking_time = IntegerField(
@@ -67,7 +68,7 @@ class RecipeIngredient(Model):
     ingredient = ForeignKey(
         Ingredient, on_delete=CASCADE, related_name='recipeingredients'
     )
-    amount = IntegerField()
+    amount = FloatField()
 
     class Meta:
         ordering = ('-id',)
@@ -105,10 +106,10 @@ class Favorite(Model):
 
 class ShoppingCart(Model):
     user = ForeignKey(
-        User, on_delete=CASCADE, related_name='shopping_carts'
+        User, on_delete=CASCADE, related_name='shopping_carts_user'
     )
     recipe = ForeignKey(
-        Recipe, on_delete=CASCADE, related_name='shopping_carts'
+        Recipe, on_delete=CASCADE, related_name='shopping_carts_recipe'
     )
 
     class Meta:
@@ -122,3 +123,19 @@ class ShoppingCart(Model):
 
     def __str__(self):
         return f'{self.recipe.name} в списке покупок у {self.user.username}'
+
+
+class RecipeShortLink(Model):
+    recipe = ForeignKey(
+        Recipe, on_delete=CASCADE, related_name='fullrecipe'
+    )
+    short_link = CharField(max_length=4, unique=True)
+
+    class Meta:
+        constraints = [
+            UniqueConstraint(
+                fields=('recipe', 'short_link'),
+                name='unique_recipeshortlink_recipe_shortlink'
+            ),
+        ]
+

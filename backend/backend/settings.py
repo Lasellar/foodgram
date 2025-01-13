@@ -3,12 +3,13 @@ from dotenv import load_dotenv
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+ROOT_DIR = BASE_DIR.parent
 load_dotenv()
 SECRET_KEY = os.environ.get('SECRET_KEY')
 
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -19,6 +20,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework.authtoken',
     'rest_framework',
+    'corsheaders',
     'djoser',
     'users.apps.UsersConfig',
     'backend_foodgram.apps.BackendFoodgramConfig'
@@ -31,11 +33,13 @@ DEFAULT_FROM_EMAIL = 'noreply@foodgram.com'
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
 ]
 
 ROOT_URLCONF = 'backend.urls'
@@ -88,7 +92,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/3.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'ru-RU'
 
 TIME_ZONE = 'UTC'
 
@@ -116,7 +120,7 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',
     ],
 
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'DEFAULT_PAGINATION_CLASS': 'backend_foodgram.pagination.PageLimitPagination',
     'PAGE_SIZE': 10,
 
 }
@@ -148,5 +152,13 @@ DJOSER = {
         'user': ('djoser.permissions.CurrentUserOrAdminOrReadOnly',)
     }
 }
+
+
+DATAFILES_DIR = ROOT_DIR / 'data'
+
+CORS_URLS_REGEX = r'^/api/.*$'
+CORS_ALLOWED_ORIGINS = [
+    'http://127.0.0.1:3000',
+]
 
 

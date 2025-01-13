@@ -4,7 +4,7 @@ from django.contrib.admin import (
 )
 
 from .models import (
-    Tag, Ingredient, Recipe, RecipeIngredient, Favorite, ShoppingCart
+    Tag, Ingredient, Recipe, RecipeIngredient, Favorite, ShoppingCart, RecipeShortLink
 )
 
 
@@ -42,3 +42,8 @@ class RecipeAdmin(ModelAdmin):
 @register(RecipeIngredient)
 class RecipeIngredientAdmin(ModelAdmin):
     list_display = ('id', 'recipe', 'ingredient', 'amount')
+
+
+@register(RecipeShortLink)
+class RecipeIngredientAdmin(ModelAdmin):
+    list_display = ('id', 'recipe', 'short_link')
