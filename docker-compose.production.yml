@@ -4,10 +4,10 @@ volumes:
   media_volume:
 services:
   db:
-    image: sqlite
+    image: postgres:13.10
     env_file: .env
     volumes:
-      - pg_data_production:/var/lib/sqlite/data
+      - pg_data_production:/var/lib/postgresql/data
   backend:
     image: lasellar/foodgram_backend
     env_file: .env
