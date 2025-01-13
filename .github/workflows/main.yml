@@ -28,11 +28,19 @@ on:
 
 jobs:
 
+  checkout_and_print_tree:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+      - name: Print project tree
+        run: tree .
+
   build_backend_and_push_to_docker_hub:
     name: Push backend Docker image to Docker hub
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
+      - name: Checkout repo
         uses: actions/checkout@v3
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
