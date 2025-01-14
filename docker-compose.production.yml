@@ -30,4 +30,4 @@ services:
       - static_volume:/staticfiles/
       - media_volume:/app/media/
     ports:
-      - 80:80
+      - 8080:80
