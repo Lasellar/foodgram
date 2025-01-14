@@ -25,7 +25,7 @@ class Tag(Model):
         return self.name
 
     class Meta:
-        order_by = ('name', )
+        ordering = ('name', )
 
 
 class Ingredient(Model):
@@ -39,7 +39,7 @@ class Ingredient(Model):
         return self.name
 
     class Meta:
-        order_by = ('name', )
+        ordering = ('name', )
 
 
 class Recipe(Model):
@@ -59,7 +59,7 @@ class Recipe(Model):
         return self.name
 
     class Meta:
-        order_by = ('-id', )
+        ordering = ('-id', )
 
 
 class RecipeTag(Model):
