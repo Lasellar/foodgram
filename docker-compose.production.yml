@@ -21,7 +21,7 @@ services:
       - static_volume:/frontend_static
     command: cp -r /app/build/. /frontend_static/
   gateway:
-    image: lasellar/foodgram_gateway
+    image: nginx:1.21.3-alpine
     env_file: .env
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf
@@ -30,4 +30,4 @@ services:
       - static_volume:/staticfiles/
       - media_volume:/app/media/
     ports:
-      - 8080:80
+      - 80:80
