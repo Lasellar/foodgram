@@ -25,3 +25,4 @@ social-auth-core==4.5.4
 sqlparse==0.5.3
 tzdata==2024.2
 urllib3==2.2.3
+gunicorn==20.1.0
