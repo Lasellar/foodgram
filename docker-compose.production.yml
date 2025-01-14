@@ -12,7 +12,7 @@ services:
     image: lasellar/foodgram_backend
     env_file: .env
     volumes:
-      - static_volume:/backend_static
+      - static_volume:/app/static/
       - media_volume:/app/media/
   frontend:
     image: lasellar/foodgram_frontend
