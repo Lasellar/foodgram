@@ -24,9 +24,6 @@ class Tag(Model):
     def __str__(self):
         return self.name
 
-    class Meta:
-        ordering = ('name', )
-
 
 class Ingredient(Model):
     name = CharField(verbose_name='Ингредиент', max_length=128)
@@ -37,9 +34,6 @@ class Ingredient(Model):
 
     def __str__(self):
         return self.name
-
-    class Meta:
-        ordering = ('name', )
 
 
 class Recipe(Model):
@@ -57,9 +51,6 @@ class Recipe(Model):
 
     def __str__(self):
         return self.name
-
-    class Meta:
-        ordering = ('-id', )
 
 
 class RecipeTag(Model):
