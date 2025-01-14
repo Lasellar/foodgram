@@ -24,8 +24,6 @@ services:
     image: lasellar/foodgram_gateway
     env_file: .env
     volumes:
-      - ../frontend/build:/usr/share/nginx/html/
-      - ../docs/:/usr/share/nginx/html/api/docs/
       - static_volume:/staticfiles/
       - media_volume:/app/media/
     ports:
