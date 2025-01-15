@@ -37,7 +37,7 @@ class RecipeFilter(FilterSet):
 
     def get_is_in_shopping_cart(self, queryset, name, value):
         return queryset.filter(
-            shopping_carts_user__user=self.request.user
+            shopping_carts__user=self.request.user
         )
 
     def filter_by_tags(self, queryset, name, value):

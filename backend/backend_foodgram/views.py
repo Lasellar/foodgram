@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
-from django.http import FileResponse, HttpResponseRedirect
+from django.http import FileResponse, HttpResponseRedirect, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status
@@ -180,8 +180,14 @@ class RecipeViewSet(ModelViewSet):
         detail=False, methods=('get',), url_path='download_shopping_cart'
     )
     def download_shopping_cart(self, request):
-        shopping_cart = get_ingredients_list(request)
-        return shopping_cart
+        """shopping_cart = get_ingredients_list(request)
+        response = HttpResponse(
+            content_type="text/"
+        )"""
+        return Response(
+            {'result': get_ingredients_list(request)},
+            status=status.HTTP_200_OK
+        )
 
 
 def redirect_short_link_view(request, short_link):
