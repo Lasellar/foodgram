@@ -19,7 +19,7 @@ def generate_short_link(request):
 
 def generate_full_short_url(link):
     return {
-        'short-link': f'https://foodgram_lasellar.ddns.com/s/{link}'
+        'short-link': f'https://lasellarfoodgram.ddns.net/s/{link}'
     }
 
 
