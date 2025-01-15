@@ -1,7 +1,6 @@
 from django.contrib.auth import get_user_model
-from django.core.validators import MinValueValidator
 from django.db.models import (
-    Model, CharField, SlugField, Choices, ManyToManyField, TextField,
+    Model, CharField, SlugField, ManyToManyField, TextField,
     IntegerField, ImageField, ForeignKey, CASCADE, UniqueConstraint,
     FloatField
 )
@@ -16,6 +15,10 @@ class Tag(Model):
     def __str__(self):
         return self.name
 
+    class Meta:
+        verbose_name = 'Тег'
+        verbose_name_plural = 'Теги'
+
 
 class Ingredient(Model):
     name = CharField(verbose_name='Ингредиент', max_length=1024)
@@ -26,6 +29,10 @@ class Ingredient(Model):
 
     def __str__(self):
         return self.name
+
+    class Meta:
+        verbose_name = 'Ингредиент'
+        verbose_name_plural = 'Ингредиенты'
 
 
 class Recipe(Model):
@@ -44,6 +51,10 @@ class Recipe(Model):
     def __str__(self):
         return self.name
 
+    class Meta:
+        verbose_name = 'Рецепт'
+        verbose_name_plural = 'Рецепты'
+
 
 class RecipeTag(Model):
     recipe = ForeignKey(Recipe, on_delete=CASCADE)
@@ -51,6 +62,10 @@ class RecipeTag(Model):
 
     def __str__(self):
         return f'{self.recipe} - {self.tag}'
+
+    class Meta:
+        verbose_name = 'Рецепт-Тег'
+        verbose_name_plural = 'Рецепты-Теги'
 
 
 class RecipeIngredient(Model):
@@ -70,9 +85,12 @@ class RecipeIngredient(Model):
                 name='unique_recipeingredient_recipe_ingredient_amount'
             )
         ]
+        verbose_name = 'Рецепт-Ингредиент'
+        verbose_name_plural = 'Рецепты-Ингредиенты'
 
     def __str__(self):
         return f'{self.recipe} - {self.ingredient}'
+
 
 
 class Favorite(Model):
@@ -91,6 +109,8 @@ class Favorite(Model):
                 name='unique_favorite_user_recipe'
             )
         ]
+        verbose_name = 'Избранное'
+        verbose_name_plural = 'Избранное'
 
     def __str__(self):
         return f'{self.recipe.name} в избранном у {self.user.username}'
@@ -112,6 +132,8 @@ class ShoppingCart(Model):
                 name='unique_shopping_carts_user_recipe'
             )
         ]
+        verbose_name = 'Корзина'
+        verbose_name_plural = 'Корзины'
 
     def __str__(self):
         return f'{self.recipe.name} в списке покупок у {self.user.username}'
@@ -130,4 +152,6 @@ class RecipeShortLink(Model):
                 name='unique_recipeshortlink_recipe_shortlink'
             ),
         ]
+        verbose_name = 'Рецепт-Короткая ссылка'
+        verbose_name_plural = 'Рецепты-Короткие ссылки'
 
