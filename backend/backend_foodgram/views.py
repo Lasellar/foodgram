@@ -96,7 +96,9 @@ class RecipeViewSet(ModelViewSet):
             recipe_id = get_object_or_404(
                 RecipeShortLink, short_link=pk
             ).recipe.id
-            return get_object_or_404(Recipe, id=recipe_id)
+            return Response(
+                {'recipe_id': recipe_id}
+            )
         return super().get_object()
 
     @action(detail=True, methods=('post', 'delete'))
