@@ -1,11 +1,8 @@
-from backend.settings import DATAFILES_DIR
-
 import csv
 
 
 def load_csv():
     data = open_csv()
-    print(data)
     print('creating ingredients objects...')
     for ingredient in data:
         Ingredient.objects.get_or_create(
@@ -16,7 +13,7 @@ def load_csv():
 
 
 def open_csv():
-    path = DATAFILES_DIR / 'ingredients.csv'
+    path = './data/ingredients.csv'
     try:
         with open(path, 'r', encoding='utf-8') as file:
             return list(csv.reader(file))
