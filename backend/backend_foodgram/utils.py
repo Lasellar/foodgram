@@ -6,8 +6,7 @@ from django.shortcuts import get_object_or_404
 from .models import Recipe, ShoppingCart, RecipeIngredient
 
 
-def generate_short_link(request):
-    random.seed(request.path)
+def generate_short_link():
     short_link = ''.join(
         [
             random.choice(string.ascii_letters + string.digits)

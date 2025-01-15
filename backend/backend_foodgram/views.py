@@ -170,25 +170,15 @@ class RecipeViewSet(ModelViewSet):
                 ),
                 status=status.HTTP_200_OK
             )
-        short_link = generate_short_link(request)
+        short_link = generate_short_link()
         while RecipeShortLink.objects.filter(short_link=short_link).exists():
-            short_link = generate_short_link(request)
+            short_link = generate_short_link()
         recipe = Recipe.objects.get(id=pk)
         RecipeShortLink.objects.create(recipe=recipe, short_link=short_link)
         return Response(
             generate_full_short_url(short_link),
             status=status.HTTP_200_OK
         )
-
-    @action(detail=False, methods=['get'], url_path='s/(?P<short_link>[^/.]+)')
-    def get_recipe_by_short_link(self, request, short_link):
-        """
-        Метод для получения рецепта по короткой ссылке.
-        """
-        recipe_short_link = get_object_or_404(RecipeShortLink, short_link=short_link)
-        recipe = get_object_or_404(Recipe, id=recipe_short_link.recipe.id)
-        serializer = RecipeGETSerializer(recipe)
-        return Response(serializer.data, status=status.HTTP_200_OK)
 
     @action(
         detail=False, methods=('get',), url_path='download_shopping_cart'
