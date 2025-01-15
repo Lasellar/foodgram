@@ -192,7 +192,7 @@ def redirect_short_link_view(request, short_link):
     )
     recipe = get_object_or_404(Recipe, id=recipe_short_link.recipe.id)
     return HttpResponseRedirect(
-        f'https://lasellarfoodgram.ddns.net/api/recipes/{recipe.id}/'
+        f'https://lasellarfoodgram.ddns.net/recipes/{recipe.id}/'
     )
 
 
