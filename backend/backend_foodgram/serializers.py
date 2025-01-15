@@ -1,5 +1,3 @@
-import base64
-
 from django.contrib.auth import get_user_model
 from django.core.files.base import ContentFile
 from django.shortcuts import get_object_or_404
@@ -12,14 +10,19 @@ from djoser.serializers import UserCreateSerializer, UserSerializer
 
 from .models import (
     Tag, Ingredient, Recipe, RecipeIngredient,
-    RecipeTag, Favorite, ShoppingCart
+    Favorite, ShoppingCart
 )
 from users.models import Subscription
+
+import base64
 
 User = get_user_model()
 
 
 class Base64ImageField(ImageField):
+    """
+    Полу для хранения изображений в формате base64.
+    """
     def to_internal_value(self, data):
         if isinstance(data, str) and data.startswith('data:image'):
             fmt, imgstr = data.split(';base64,')
