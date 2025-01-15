@@ -96,9 +96,7 @@ class RecipeViewSet(ModelViewSet):
             recipe_id = get_object_or_404(
                 RecipeShortLink, short_link=pk
             ).recipe.id
-            return Response(
-                {'recipe_id': recipe_id}
-            )
+            return get_object_or_404(Recipe, id=recipe_id)
         return super().get_object()
 
     @action(detail=True, methods=('post', 'delete'))
@@ -187,6 +185,16 @@ class RecipeViewSet(ModelViewSet):
             generate_full_short_url(short_link),
             status=status.HTTP_200_OK
         )
+
+    @action(detail=False, methods=['get'], url_path='s/(?P<short_link>[^/.]+)')
+    def get_recipe_by_short_link(self, request, short_link):
+        """
+        Метод для получения рецепта по короткой ссылке.
+        """
+        recipe_short_link = get_object_or_404(RecipeShortLink, short_link=short_link)
+        recipe = get_object_or_404(Recipe, id=recipe_short_link.recipe.id)
+        serializer = RecipeGETSerializer(recipe)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     @action(
         detail=False, methods=('get',), url_path='download_shopping_cart'
