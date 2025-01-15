@@ -1,16 +1,15 @@
 from django.contrib.auth import get_user_model
 from django_filters import FilterSet
-from django_filters import (
-    CharFilter, MultipleChoiceFilter, BooleanFilter, NumberFilter
-)
+from django_filters import (CharFilter, NumberFilter)
 
-from .models import Tag, Ingredient, Recipe
+from .models import Ingredient, Recipe
 
 
 User = get_user_model()
 
 
 class IngredientFilter(FilterSet):
+    """Класс, отвечающий за фильтрацию ингредиентов."""
     name = CharFilter(lookup_expr='istartswith')
 
     class Meta:
@@ -36,9 +35,7 @@ class RecipeFilter(FilterSet):
         return queryset.filter(favorites__user=self.request.user)
 
     def get_is_in_shopping_cart(self, queryset, name, value):
-        return queryset.filter(
-            shopping_carts__user=self.request.user
-        )
+        return queryset.filter(shopping_carts__user=self.request.user)
 
     def filter_by_tags(self, queryset, name, value):
         return queryset.filter(tags__slug=value)
