@@ -4,7 +4,8 @@ from django.contrib.admin import (
 )
 
 from .models import (
-    Tag, Ingredient, Recipe, RecipeIngredient, Favorite, ShoppingCart, RecipeShortLink, RecipeTag
+    Tag, Ingredient, Recipe, RecipeIngredient, Favorite,
+    ShoppingCart, RecipeShortLink, RecipeTag
 )
 
 
