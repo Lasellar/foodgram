@@ -56,6 +56,7 @@ class RecipeViewSet(ModelViewSet):
     queryset = Recipe.objects.all()
     filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipeFilter
+    pagination_class = PageLimitAndRecipesLimitPagination
     http_method_names = ('get', 'post', 'patch', 'delete')
 
     def get_serializer_class(self):
