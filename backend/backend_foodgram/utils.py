@@ -1,9 +1,7 @@
 import random
 import string
 
-from django.shortcuts import get_object_or_404
-
-from .models import Recipe, ShoppingCart, RecipeIngredient
+from .models import ShoppingCart
 
 
 def generate_short_link():
