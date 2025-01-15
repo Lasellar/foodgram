@@ -91,12 +91,6 @@ class RecipeViewSet(ModelViewSet):
         return super().get_permissions()
 
     def get_object(self):
-        if '/s/' in self.request.path:
-            pk = self.kwargs.get('pk')
-            recipe_id = get_object_or_404(
-                RecipeShortLink, short_link=pk
-            ).recipe.id
-            return get_object_or_404(Recipe, id=recipe_id)
         return super().get_object()
 
     @action(detail=True, methods=('post', 'delete'))
