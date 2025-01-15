@@ -159,7 +159,7 @@ class RecipeViewSet(ModelViewSet):
     def get_short_link(self, request, pk):
         recipe = get_object_or_404(Recipe, id=pk)
         recipe_short_link = RecipeShortLink.objects.filter(
-            recipe=recipe
+            recipe=recipe.id
         ).first()
         if recipe_short_link:
             return Response(
@@ -170,7 +170,7 @@ class RecipeViewSet(ModelViewSet):
         short_link = generate_short_link()
         while RecipeShortLink.objects.filter(short_link=short_link).exists():
             short_link = generate_short_link()
-        RecipeShortLink.objects.create(recipe=recipe, short_link=short_link)
+        RecipeShortLink.objects.create(recipe=recipe.id, short_link=short_link)
         return Response(
             generate_full_short_url(short_link),
             status=status.HTTP_201_CREATED
