@@ -23,42 +23,48 @@ class TagAdmin(ModelAdmin):
 @register(Ingredient)
 class IngredientAdmin(ModelAdmin):
     list_display = ('id', 'name', 'measurement_unit')
-    search_fields = ('id', 'name', 'measurement_unit')
-    list_filter = ('id', 'name')
+    search_fields = ('name',)
+    list_filter = ('name', 'measurement_unit')
     empty_value_display = settings.EMPTY_VALUE
 
 
 @register(Recipe)
 class RecipeAdmin(ModelAdmin):
-    list_display = ('id', 'name', 'display_tags', 'display_ingredients')
+    list_display = ('id', 'name', 'author', 'get_favorites_count')
+    search_fields = ('author', 'name')
+    list_filter = ('tags',)
+    empty_value_display = settings.EMPTY_VALUE
 
-    def display_tags(self, obj):
-        return ', '.join([tag.name for tag in obj.tags.all()])
-
-    def display_ingredients(self, obj):
-        return ', '.join([ingredient.name for ingredient in obj.ingredients.all()])
+    def get_favorites_count(self, obj):
+        return obj.favorites.count()
+    get_favorites_count.short_description = 'В избранном'
 
 
 @register(RecipeTag)
 class RecipeTagAdmin(ModelAdmin):
     list_display = ('id', 'recipe', 'tag')
+    empty_value_display = settings.EMPTY_VALUE
 
 
 @register(RecipeIngredient)
 class RecipeIngredientAdmin(ModelAdmin):
     list_display = ('id', 'recipe', 'ingredient', 'amount')
+    empty_value_display = settings.EMPTY_VALUE
 
 
 @register(Favorite)
 class FavoriteAdmin(ModelAdmin):
     list_display = ('id', 'user', 'recipe')
+    empty_value_display = settings.EMPTY_VALUE
 
 
 @register(ShoppingCart)
 class FavoriteAdmin(ModelAdmin):
     list_display = ('id', 'user', 'recipe')
+    empty_value_display = settings.EMPTY_VALUE
 
 
 @register(RecipeShortLink)
 class RecipeShortLinkAdmin(ModelAdmin):
     list_display = ('id', 'recipe', 'short_link')
+    empty_value_display = settings.EMPTY_VALUE
