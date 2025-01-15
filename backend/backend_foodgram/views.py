@@ -53,7 +53,7 @@ class IngredientViewSet(ReadOnlyModelViewSet):
 
 
 class RecipeViewSet(ModelViewSet):
-    queryset = Recipe.objects.all()
+    queryset = Recipe.objects.all().order_by('-id')
     filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipeFilter
     pagination_class = PageLimitAndRecipesLimitPagination
@@ -271,7 +271,9 @@ class UserSubscriptionsViewSet(ListModelMixin, GenericViewSet):
     pagination_class = PageLimitAndRecipesLimitPagination
 
     def get_queryset(self):
-        return User.objects.filter(following__user=self.request.user)
+        return User.objects.filter(
+            following__user=self.request.user
+        ).order_by('-id')
 
 
 class LoginView(APIView):
@@ -333,7 +335,7 @@ class UserViewSet(ModelViewSet):
     - users/me/avatar/
     - users/<pk>/subscribe/
     """
-    queryset = User.objects.all()
+    queryset = User.objects.all().order_by('-id')
     serializer_class = UserGETSerializer
     http_method_names = ('get', 'post', 'put', 'delete')
 
