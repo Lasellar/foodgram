@@ -3,7 +3,7 @@ from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
 from django.http import FileResponse
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status
 from rest_framework.authtoken.models import Token
@@ -203,6 +203,17 @@ class RecipeViewSet(ModelViewSet):
         return Response(
             {'result': get_ingredients_list(request)},
             status=status.HTTP_200_OK
+        )
+
+
+def redirect_short_link_view(request, short_link):
+    recipe_short_link = get_object_or_404(RecipeShortLink, short_link=short_link)
+    recipe = get_object_or_404(Recipe, id=recipe_short_link.recipe.id)
+    if recipe:
+        return redirect(f'https://lasellarfoodgram/recipes/{recipe.id}/')
+    else:
+        return Response(
+            status=status.HTTP_404_NOT_FOUND
         )
 
 
