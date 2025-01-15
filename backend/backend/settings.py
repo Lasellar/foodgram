@@ -11,7 +11,7 @@ DEBUG = False
 ALLOWED_HOSTS = [
     'lasellarfoodgram.ddns.net',
     '89.169.166.32',
-    # '127.0.0.1'
+    '127.0.0.1'
 ]
 
 INSTALLED_APPS = [
@@ -66,11 +66,11 @@ TEMPLATES = [
 WSGI_APPLICATION = 'backend.wsgi.application'
 
 DATABASES = {
-    's': {
+    'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
     },
-    'default': {
+    's': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': os.getenv('POSTGRES_DB', 'django'),
         'USER': os.getenv('POSTGRES_USER', 'django'),
