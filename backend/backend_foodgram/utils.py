@@ -59,4 +59,4 @@ def get_ingredients_list(request):
             f'{ingredient["amount"]} '
             f'{ingredient["measurement_unit"]}\n'
         )
-    return ingredients
+    return _string
