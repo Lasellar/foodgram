@@ -196,18 +196,6 @@ def redirect_short_link_view(request, short_link):
     )
 
 
-class SignUpView(APIView, SignUpValidator):
-    def post(self, request):
-        serializer = UserSignUpSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(
-                serializer.data,
-                status=status.HTTP_201_CREATED
-            )
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
 class UserSubscriptionView(APIView):
     """
     Вьюсет, отвечающий за создание/удаление подписки на пользователя по id.
@@ -329,10 +317,13 @@ class UserViewSet(ModelViewSet):
         Метод, определяющий разрешения на доступ для конкретных методов.
         """
         if (
-            self.request.method == 'POST'
-            and self.kwargs.get('pk') == 'set_password'
+            self.kwargs.get('pk') == 'set_password'
         ) or (
-            'avatar' in self.request.path
+            (
+                '/avatar' in self.request.path
+                or '/me' in self.request.path
+                or '/subscribe' in self.request.path
+            )
         ):
             return (IsAuthenticated(),)
         return super().get_permissions()
