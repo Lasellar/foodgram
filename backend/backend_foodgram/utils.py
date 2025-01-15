@@ -1,5 +1,8 @@
 import random
 import string
+import pdfkit
+
+from django.http import HttpResponse
 
 from .models import ShoppingCart
 
@@ -58,3 +61,28 @@ def get_ingredients_list(request):
             f'{ingredient["measurement_unit"]}\n'
         )
     return _string
+
+
+def get_shopping_cart_as_txt(request):
+    ingredients_list = get_ingredients_list(request)
+    response = HttpResponse(
+        ingredients_list,
+        content_type='text/plain'
+    )
+    response['Content-Disposition'] = (
+        'attachment; '
+        'filename="shopping_cart.txt'
+    )
+    return response
+
+
+def get_shopping_cart_as_pdf(request):
+    ingredients_list = get_ingredients_list(request)
+    pdf = pdfkit.from_string(ingredients_list)
+    response = HttpResponse(pdf, content_type='application/pdf')
+    response['Content-Disposition'] = (
+        'attachment; '
+        'filename="shopping_cart.pdf'
+    )
+    return response
+

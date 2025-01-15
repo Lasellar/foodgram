@@ -28,7 +28,7 @@ from .serializers import (
     UserSubscribeSerializer, UserSubscribeRepresentSerializer,
     UserGETSerializer, UserSignUpSerializer
 )
-from .utils import generate_short_link, generate_full_short_url, get_ingredients_list
+from .utils import generate_short_link, generate_full_short_url, get_ingredients_list, get_shopping_cart_as_pdf
 from .validators import SignUpValidator
 
 import base64
@@ -180,16 +180,7 @@ class RecipeViewSet(ModelViewSet):
         detail=False, methods=('get',), url_path='download_shopping_cart'
     )
     def download_shopping_cart(self, request):
-        ingredients_list = get_ingredients_list(request)
-        response = HttpResponse(
-            ingredients_list,
-            content_type='application/pdf'
-        )
-        response['Content-Disposition'] = (
-            'attachment; '
-            'filename="shopping_cart.txt'
-        )
-        return response
+        get_shopping_cart_as_pdf(request)
 
 
 def redirect_short_link_view(request, short_link):
