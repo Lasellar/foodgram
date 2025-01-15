@@ -3,7 +3,6 @@ from dotenv import load_dotenv
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-ROOT_DIR = BASE_DIR.parent
 load_dotenv()
 SECRET_KEY = os.environ.get('SECRET_KEY')
 
@@ -112,6 +111,8 @@ STATIC_ROOT = BASE_DIR / 'backend_static/static'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
+DATAFILES_DIR = BASE_DIR / 'data'
+
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'users.User'
 
@@ -156,9 +157,6 @@ DJOSER = {
         'user': ('djoser.permissions.CurrentUserOrAdminOrReadOnly',)
     }
 }
-
-
-DATAFILES_DIR = ROOT_DIR / 'data'
 
 CORS_URLS_REGEX = r'^/api/.*$'
 CORS_ALLOWED_ORIGINS = [

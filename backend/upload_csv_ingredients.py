@@ -1,3 +1,5 @@
+from backend.settings import DATAFILES_DIR
+
 import csv
 
 
@@ -13,7 +15,7 @@ def load_csv():
 
 
 def open_csv():
-    path = './data/ingredients.csv'
+    path = DATAFILES_DIR / 'ingredients.csv'
     try:
         with open(path, 'r', encoding='utf-8') as file:
             return list(csv.reader(file))
