@@ -181,8 +181,9 @@ class RecipeViewSet(ModelViewSet):
         detail=False, methods=('get',), url_path='download_shopping_cart'
     )
     def download_shopping_cart(self, request):
-        # return get_shopping_cart_as_txt(request)
-        return get_shopping_cart_as_pdf(request)
+        return get_shopping_cart_as_txt(request)
+        # не работает
+        # return get_shopping_cart_as_pdf(request)
 
 
 def redirect_short_link_view(request, short_link):
