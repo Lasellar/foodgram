@@ -8,14 +8,6 @@ from django.db.models import (
 
 User = get_user_model()
 
-MEASUREMENT_UNIT_CHOICES = (
-    ('kg', 'кг'),
-    ('g', 'г'),
-    ('mg', 'мг'),
-    ('l', 'л'),
-    ('ml', 'мл')
-)
-
 
 class Tag(Model):
     name = CharField(verbose_name='Название', max_length=16, unique=True)
