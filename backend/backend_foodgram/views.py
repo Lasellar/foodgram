@@ -181,7 +181,10 @@ class RecipeViewSet(ModelViewSet):
     )
     def download_shopping_cart(self, request):
         ingredients_list = get_ingredients_list(request)
-        response = HttpResponse(ingredients_list, content_type='text/plain')
+        response = HttpResponse(
+            ingredients_list,
+            content_type='application/pdf'
+        )
         response['Content-Disposition'] = (
             'attachment; '
             'filename="shopping_cart.txt'
