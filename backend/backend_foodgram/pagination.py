@@ -2,11 +2,12 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 
 
-class PageLimitPagination(PageNumberPagination):
+class PageLimitAndRecipesLimitPagination(PageNumberPagination):
+    """
+    Кастомный пагинатор.
+    """
     page_size_query_param = 'limit'
 
-
-class PageLimitAndRecipesLimitPagination(PageLimitPagination):
     def get_paginated_response(self, data):
         return Response(
             {
