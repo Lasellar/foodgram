@@ -256,7 +256,6 @@ class RecipeGETSerializer(ModelSerializer):
     author = UserGETSerializer(read_only=True)
     is_favorited = SerializerMethodField()
     is_in_shopping_cart = SerializerMethodField()
-    image = Base64ImageField(required=False)
 
     class Meta:
         model = Recipe
