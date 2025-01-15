@@ -180,10 +180,8 @@ class RecipeViewSet(ModelViewSet):
         detail=False, methods=('get',), url_path='download_shopping_cart'
     )
     def download_shopping_cart(self, request):
-        return Response(
-            {'result': get_ingredients_list(request)},
-            status=status.HTTP_200_OK
-        )
+        shopping_cart = get_ingredients_list(request)
+        return shopping_cart
 
 
 def redirect_short_link_view(request, short_link):
