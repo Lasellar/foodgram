@@ -64,6 +64,14 @@ class RecipeViewSet(ModelViewSet):
             return RecipeGETSerializer
         return RecipeCreateSerializer
 
+    def get_queryset(self):
+        queryset = self.queryset
+        # Проверяем, есть ли фильтры в запросе
+        if self.request.query_params:
+            # Если есть параметры запроса, применяем фильтры
+            queryset = self.filterset_class(self.request.GET, queryset=queryset).qs
+        return queryset
+
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
 
