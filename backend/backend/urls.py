@@ -6,5 +6,5 @@ from backend_foodgram.views import redirect_short_link_view
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('backend_foodgram.urls')),
-    path('s/(?P<short_link>[^/.]+)/', redirect_short_link_view)
+    path('s/(?P<short_link>[^/.]+)/', redirect_short_link_view())
 ]
