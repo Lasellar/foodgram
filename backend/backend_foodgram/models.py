@@ -26,9 +26,9 @@ class Tag(Model):
 
 
 class Ingredient(Model):
-    name = CharField(verbose_name='Ингредиент', max_length=128)
+    name = CharField(verbose_name='Ингредиент', max_length=1024)
     measurement_unit = CharField(
-        max_length=4,
+        max_length=64,
         verbose_name='Мера измерения'
     )
 
