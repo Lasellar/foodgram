@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.urls import path, include
 
-from ..backend_foodgram.views import redirect_short_link_view
+from backend_foodgram.views import redirect_short_link_view
 
 urlpatterns = [
     path('admin/', admin.site.urls),
