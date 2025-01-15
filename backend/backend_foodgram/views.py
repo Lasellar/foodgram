@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
-from django.http import FileResponse
+from django.http import FileResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status
@@ -159,18 +159,18 @@ class RecipeViewSet(ModelViewSet):
     def get_short_link(self, request, pk):
         recipe = get_object_or_404(Recipe, id=pk)
         recipe_short_link = RecipeShortLink.objects.filter(
-            recipe=recipe.id
+            recipe=recipe
         ).first()
         if recipe_short_link:
             return Response(
-                generate_full_short_url(recipe_short_link.shortr_link),
+                generate_full_short_url(recipe_short_link.short_link),
                 status=status.HTTP_200_OK
             )
 
         short_link = generate_short_link()
         while RecipeShortLink.objects.filter(short_link=short_link).exists():
             short_link = generate_short_link()
-        RecipeShortLink.objects.create(recipe=recipe.id, short_link=short_link)
+        RecipeShortLink.objects.create(recipe=recipe, short_link=short_link)
         return Response(
             generate_full_short_url(short_link),
             status=status.HTTP_201_CREATED
@@ -187,14 +187,13 @@ class RecipeViewSet(ModelViewSet):
 
 
 def redirect_short_link_view(request, short_link):
-    recipe_short_link = get_object_or_404(RecipeShortLink, short_link=short_link)
+    recipe_short_link = get_object_or_404(
+        RecipeShortLink, short_link=short_link
+    )
     recipe = get_object_or_404(Recipe, id=recipe_short_link.recipe.id)
-    if recipe:
-        return redirect(f'https://lasellarfoodgram/recipes/{recipe.id}/')
-    else:
-        return Response(
-            status=status.HTTP_404_NOT_FOUND
-        )
+    return HttpResponseRedirect(
+        f'https://lasellarfoodgram.ddns.net/api/recipes/{recipe.id}/'
+    )
 
 
 class SignUpView(APIView, SignUpValidator):
