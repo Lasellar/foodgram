@@ -16,6 +16,10 @@ class User(AbstractUser):
     )
     password = CharField(max_length=150)
 
+    class Meta:
+        verbose_name = 'Пользователь'
+        verbose_name_plural = 'Пользователи'
+
 
 class Subscription(Model):
     user = ForeignKey(
@@ -32,3 +36,5 @@ class Subscription(Model):
                 name='unique_subscription_user_author'
             )
         ]
+        verbose_name = 'Подписка'
+        verbose_name_plural = 'Подписки'
