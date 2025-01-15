@@ -9,6 +9,9 @@ User = get_user_model()
 
 
 class Tag(Model):
+    """
+    Модель тега.
+    """
     name = CharField(verbose_name='Название', max_length=16, unique=True)
     slug = SlugField(verbose_name='Слаг', max_length=32, unique=True)
 
@@ -21,6 +24,9 @@ class Tag(Model):
 
 
 class Ingredient(Model):
+    """
+    Модель ингредиента.
+    """
     name = CharField(verbose_name='Ингредиент', max_length=1024)
     measurement_unit = CharField(
         max_length=64,
@@ -36,6 +42,9 @@ class Ingredient(Model):
 
 
 class Recipe(Model):
+    """
+    Модель рецепта.
+    """
     author = ForeignKey(
        User, on_delete=CASCADE, related_name='recipes'
     )
@@ -57,6 +66,9 @@ class Recipe(Model):
 
 
 class RecipeTag(Model):
+    """
+    Модель для связи рецептов и тегов.
+    """
     recipe = ForeignKey(Recipe, on_delete=CASCADE)
     tag = ForeignKey(Tag, on_delete=CASCADE)
 
@@ -69,6 +81,9 @@ class RecipeTag(Model):
 
 
 class RecipeIngredient(Model):
+    """
+    Модель для связи рецептов и ингредиентов.
+    """
     recipe = ForeignKey(
         Recipe, on_delete=CASCADE, related_name='recipeingredients'
     )
@@ -92,8 +107,10 @@ class RecipeIngredient(Model):
         return f'{self.recipe} - {self.ingredient}'
 
 
-
 class Favorite(Model):
+    """
+    Модель для связи пользователя с его избранными рецептами.
+    """
     user = ForeignKey(
         User, on_delete=CASCADE, related_name='favorites'
     )
@@ -117,6 +134,9 @@ class Favorite(Model):
 
 
 class ShoppingCart(Model):
+    """
+    Модель для связи пользователя с его рецептами в корзине покупок.
+    """
     user = ForeignKey(
         User, on_delete=CASCADE, related_name='shopping_carts'
     )
@@ -140,6 +160,9 @@ class ShoppingCart(Model):
 
 
 class RecipeShortLink(Model):
+    """
+    Модель для связи рецептов с их короткими ссылками.
+    """
     recipe = ForeignKey(
         Recipe, on_delete=CASCADE, related_name='fullrecipe'
     )

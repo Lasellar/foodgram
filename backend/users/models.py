@@ -22,6 +22,9 @@ class User(AbstractUser):
 
 
 class Subscription(Model):
+    """
+    Модель подписки.
+    """
     user = ForeignKey(
         User, on_delete=CASCADE, related_name='follower'
     )
