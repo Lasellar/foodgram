@@ -24,7 +24,7 @@ services:
     image: lasellar/foodgram_gateway
     env_file: .env
     volumes:
-      - static_volume:/staticfiles/
+      - static_volume:/backend_static/
       - media_volume:/app/media/
     ports:
       - 8080:80
