@@ -24,10 +24,13 @@ class RecipeFilter(FilterSet):
     """
     is_favorited = NumberFilter(method='get_is_favorited')
     is_in_shopping_cart = NumberFilter(method='get_is_in_shopping_cart')
+    tags = CharFilter(
+        field_name='tags__slug', lookup_expr='exact', method='filter_by_tags'
+    )
 
     class Meta:
         model = Recipe
-        fields = ('author', 'tags__slug')
+        fields = ('author', 'tags')
 
     def get_is_favorited(self, queryset, name, value):
         if value:
@@ -40,6 +43,9 @@ class RecipeFilter(FilterSet):
                 shopping_carts_user__user=self.request.user
             )
         return queryset
+
+    def filter_by_tags(self, queryset, name, value):
+        return queryset.filter(tags__slug=value)
 
 
 
