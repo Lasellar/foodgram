@@ -14,6 +14,6 @@ class PageLimitAndRecipesLimitPagination(PageLimitPagination):
                 "next": self.get_next_link(),
                 "previous": self.get_previous_link(),
                 "results": data,
-                "tags": self.request.query_params.get('tags')
+                "tags": self.request.query_params
             }
         )
