@@ -2,8 +2,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
-from django.http import FileResponse
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status
 from rest_framework.authtoken.models import Token
@@ -14,12 +13,11 @@ from rest_framework.viewsets import (
     ReadOnlyModelViewSet, GenericViewSet, ModelViewSet
 )
 from rest_framework.mixins import ListModelMixin
-from rest_framework.permissions import IsAdminUser, IsAuthenticated
+from rest_framework.permissions import IsAuthenticated
 
 from .filters import IngredientFilter, RecipeFilter
 from .models import Tag, Ingredient, Recipe, ShoppingCart, Favorite, RecipeShortLink
 from users.models import Subscription
-
 from .pagination import PageLimitAndRecipesLimitPagination
 from .permissions import IsAuthenticatedAndAuthor
 from .serializers import (
@@ -28,23 +26,24 @@ from .serializers import (
     UserSubscribeSerializer, UserSubscribeRepresentSerializer,
     UserGETSerializer, UserSignUpSerializer
 )
-from .utils import generate_short_link, generate_full_short_url, get_ingredients_list
-from .validators import SignUpValidator
+from .utils import (
+    generate_short_link, generate_full_short_url, get_shopping_cart_as_txt
+)
 
 import base64
-import random
-import string
 
 User = get_user_model()
 
 
 class TagViewSet(ReadOnlyModelViewSet):
+    """Вьюсет для обработки запросов, связанных с тегами."""
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
     pagination_class = None
 
 
 class IngredientViewSet(ReadOnlyModelViewSet):
+    """Вьюсет для обработки запросов, связанных с ингредиентами."""
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     filter_backends = (DjangoFilterBackend,)
@@ -53,9 +52,11 @@ class IngredientViewSet(ReadOnlyModelViewSet):
 
 
 class RecipeViewSet(ModelViewSet):
-    queryset = Recipe.objects.all()
+    """Вьюсет для обработки запросов, связанных с рецептами."""
+    queryset = Recipe.objects.all().order_by('-id')
     filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipeFilter
+    pagination_class = PageLimitAndRecipesLimitPagination
     http_method_names = ('get', 'post', 'patch', 'delete')
 
     def get_serializer_class(self):
@@ -90,9 +91,6 @@ class RecipeViewSet(ModelViewSet):
         return super().get_permissions()
 
     def get_object(self):
-        if '/s/' in self.request.path:
-            pk = self.kwargs.get('pk')
-            return get_object_or_404(RecipeShortLink, short_link=pk).recipe
         return super().get_object()
 
     @action(detail=True, methods=('post', 'delete'))
@@ -159,49 +157,42 @@ class RecipeViewSet(ModelViewSet):
 
     @action(detail=True, methods=('get',), url_path='get-link')
     def get_short_link(self, request, pk):
-        recipe = Recipe.objects.filter(id=pk).exists()
-        if not recipe:
+        recipe = get_object_or_404(Recipe, id=pk)
+        recipe_short_link = RecipeShortLink.objects.filter(
+            recipe=recipe
+        ).first()
+        if recipe_short_link:
             return Response(
-                {'detail': 'Страница не найдена.'},
-                status=status.HTTP_404_NOT_FOUND
-            )
-        if RecipeShortLink.objects.filter(recipe=recipe).exists():
-            return Response(
-                generate_full_short_url(
-                    RecipeShortLink.objects.get(recipe=recipe).short_link
-                ),
+                generate_full_short_url(recipe_short_link.short_link),
                 status=status.HTTP_200_OK
             )
-        short_link = generate_short_link(request)
+
+        short_link = generate_short_link()
         while RecipeShortLink.objects.filter(short_link=short_link).exists():
-            short_link = generate_short_link(request)
-        recipe = Recipe.objects.get(id=pk)
+            short_link = generate_short_link()
         RecipeShortLink.objects.create(recipe=recipe, short_link=short_link)
         return Response(
             generate_full_short_url(short_link),
-            status=status.HTTP_200_OK
+            status=status.HTTP_201_CREATED
         )
 
     @action(
         detail=False, methods=('get',), url_path='download_shopping_cart'
     )
     def download_shopping_cart(self, request):
-        return Response(
-            {'result': get_ingredients_list(request)},
-            status=status.HTTP_200_OK
-        )
+        return get_shopping_cart_as_txt(request)
+        # не работает
+        # return get_shopping_cart_as_pdf(request)
 
 
-class SignUpView(APIView, SignUpValidator):
-    def post(self, request):
-        serializer = UserSignUpSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(
-                serializer.data,
-                status=status.HTTP_201_CREATED
-            )
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+def redirect_short_link_view(request, short_link):
+    recipe_short_link = get_object_or_404(
+        RecipeShortLink, short_link=short_link
+    )
+    recipe = get_object_or_404(Recipe, id=recipe_short_link.recipe.id)
+    return redirect(
+        f'https://lasellarfoodgram.ddns.net/recipes/{recipe.id}/'
+    )
 
 
 class UserSubscriptionView(APIView):
@@ -252,7 +243,9 @@ class UserSubscriptionsViewSet(ListModelMixin, GenericViewSet):
     pagination_class = PageLimitAndRecipesLimitPagination
 
     def get_queryset(self):
-        return User.objects.filter(following__user=self.request.user)
+        return User.objects.filter(
+            following__user=self.request.user
+        ).order_by('-id')
 
 
 class LoginView(APIView):
@@ -314,7 +307,7 @@ class UserViewSet(ModelViewSet):
     - users/me/avatar/
     - users/<pk>/subscribe/
     """
-    queryset = User.objects.all()
+    queryset = User.objects.all().order_by('-id')
     serializer_class = UserGETSerializer
     http_method_names = ('get', 'post', 'put', 'delete')
 
@@ -323,10 +316,13 @@ class UserViewSet(ModelViewSet):
         Метод, определяющий разрешения на доступ для конкретных методов.
         """
         if (
-            self.request.method == 'POST'
-            and self.kwargs.get('pk') == 'set_password'
+            self.kwargs.get('pk') == 'set_password'
         ) or (
-            'avatar' in self.request.path
+            (
+                '/avatar' in self.request.path
+                or '/me' in self.request.path
+                or '/subscribe' in self.request.path
+            )
         ):
             return (IsAuthenticated(),)
         return super().get_permissions()
@@ -478,30 +474,3 @@ class UserViewSet(ModelViewSet):
         return Response(
             serializer.errors, status=status.HTTP_400_BAD_REQUEST
         )
-
-
-class UserPasswordReset(APIView):
-    def post(self, request):
-        user = request.user
-        current_password = request.data.get('current_password')
-        new_password = request.data.get('new_password')
-        if user.check_password(current_password):
-            user.set_password(new_password)
-            user.save()
-            return Response(status=status.HTTP_201_CREATED)
-        return Response(status=status.HTTP_418_IM_A_TEAPOT)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -1,42 +1,50 @@
 from django.contrib.auth import get_user_model
-from django.core.validators import MinValueValidator
 from django.db.models import (
-    Model, CharField, SlugField, Choices, ManyToManyField, TextField,
+    Model, CharField, SlugField, ManyToManyField, TextField,
     IntegerField, ImageField, ForeignKey, CASCADE, UniqueConstraint,
     FloatField
 )
 
 User = get_user_model()
 
-MEASUREMENT_UNIT_CHOICES = (
-    ('kg', 'кг'),
-    ('g', 'г'),
-    ('mg', 'мг'),
-    ('l', 'л'),
-    ('ml', 'мл')
-)
-
 
 class Tag(Model):
+    """
+    Модель тега.
+    """
     name = CharField(verbose_name='Название', max_length=16, unique=True)
     slug = SlugField(verbose_name='Слаг', max_length=32, unique=True)
 
     def __str__(self):
         return self.name
 
+    class Meta:
+        verbose_name = 'Тег'
+        verbose_name_plural = 'Теги'
+
 
 class Ingredient(Model):
-    name = CharField(verbose_name='Ингредиент', max_length=128)
+    """
+    Модель ингредиента.
+    """
+    name = CharField(verbose_name='Ингредиент', max_length=1024)
     measurement_unit = CharField(
-        max_length=4,
+        max_length=64,
         verbose_name='Мера измерения'
     )
 
     def __str__(self):
         return self.name
 
+    class Meta:
+        verbose_name = 'Ингредиент'
+        verbose_name_plural = 'Ингредиенты'
+
 
 class Recipe(Model):
+    """
+    Модель рецепта.
+    """
     author = ForeignKey(
        User, on_delete=CASCADE, related_name='recipes'
     )
@@ -52,16 +60,30 @@ class Recipe(Model):
     def __str__(self):
         return self.name
 
+    class Meta:
+        verbose_name = 'Рецепт'
+        verbose_name_plural = 'Рецепты'
+
 
 class RecipeTag(Model):
+    """
+    Модель для связи рецептов и тегов.
+    """
     recipe = ForeignKey(Recipe, on_delete=CASCADE)
     tag = ForeignKey(Tag, on_delete=CASCADE)
 
     def __str__(self):
         return f'{self.recipe} - {self.tag}'
 
+    class Meta:
+        verbose_name = 'Рецепт-Тег'
+        verbose_name_plural = 'Рецепты-Теги'
+
 
 class RecipeIngredient(Model):
+    """
+    Модель для связи рецептов и ингредиентов.
+    """
     recipe = ForeignKey(
         Recipe, on_delete=CASCADE, related_name='recipeingredients'
     )
@@ -78,12 +100,17 @@ class RecipeIngredient(Model):
                 name='unique_recipeingredient_recipe_ingredient_amount'
             )
         ]
+        verbose_name = 'Рецепт-Ингредиент'
+        verbose_name_plural = 'Рецепты-Ингредиенты'
 
     def __str__(self):
         return f'{self.recipe} - {self.ingredient}'
 
 
 class Favorite(Model):
+    """
+    Модель для связи пользователя с его избранными рецептами.
+    """
     user = ForeignKey(
         User, on_delete=CASCADE, related_name='favorites'
     )
@@ -99,17 +126,22 @@ class Favorite(Model):
                 name='unique_favorite_user_recipe'
             )
         ]
+        verbose_name = 'Избранное'
+        verbose_name_plural = 'Избранное'
 
     def __str__(self):
         return f'{self.recipe.name} в избранном у {self.user.username}'
 
 
 class ShoppingCart(Model):
+    """
+    Модель для связи пользователя с его рецептами в корзине покупок.
+    """
     user = ForeignKey(
-        User, on_delete=CASCADE, related_name='shopping_carts_user'
+        User, on_delete=CASCADE, related_name='shopping_carts'
     )
     recipe = ForeignKey(
-        Recipe, on_delete=CASCADE, related_name='shopping_carts_recipe'
+        Recipe, on_delete=CASCADE, related_name='shopping_carts'
     )
 
     class Meta:
@@ -120,12 +152,17 @@ class ShoppingCart(Model):
                 name='unique_shopping_carts_user_recipe'
             )
         ]
+        verbose_name = 'Корзина'
+        verbose_name_plural = 'Корзины'
 
     def __str__(self):
         return f'{self.recipe.name} в списке покупок у {self.user.username}'
 
 
 class RecipeShortLink(Model):
+    """
+    Модель для связи рецептов с их короткими ссылками.
+    """
     recipe = ForeignKey(
         Recipe, on_delete=CASCADE, related_name='fullrecipe'
     )
@@ -138,4 +175,6 @@ class RecipeShortLink(Model):
                 name='unique_recipeshortlink_recipe_shortlink'
             ),
         ]
+        verbose_name = 'Рецепт-Короткая ссылка'
+        verbose_name_plural = 'Рецепты-Короткие ссылки'
 

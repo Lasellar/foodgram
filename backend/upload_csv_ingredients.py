@@ -5,7 +5,6 @@ import csv
 
 def load_csv():
     data = open_csv()
-    print(data)
     print('creating ingredients objects...')
     for ingredient in data:
         Ingredient.objects.get_or_create(

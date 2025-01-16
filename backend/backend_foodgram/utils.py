@@ -1,13 +1,17 @@
+from django.http import HttpResponse
+
+from .models import ShoppingCart
+
 import random
 import string
-
-from django.shortcuts import get_object_or_404
-
-from .models import Recipe, ShoppingCart, RecipeIngredient
+import pdfkit
 
 
-def generate_short_link(request):
-    random.seed(request.path)
+def generate_short_link():
+    """
+    Функция для генерации случайного slug
+    для короткой ссылки на рецепт.
+    """
     short_link = ''.join(
         [
             random.choice(string.ascii_letters + string.digits)
@@ -18,12 +22,20 @@ def generate_short_link(request):
 
 
 def generate_full_short_url(link):
+    """
+    Функция для генерации json-ответа со сгенерированной
+    короткой ссылкой на рецепт.
+    """
     return {
-        'short-link': f'https://foodgram_lasellar.ddns.com/s/{link}'
+        'short-link': f'https://lasellarfoodgram.ddns.net/s/{link}'
     }
 
 
 def get_ingredients_list(request):
+    """
+    Функция для генерации строки со списком
+    ингредиентов из списка покупок.
+    """
     ingredients = []
     shopping_cart_recipes = ShoppingCart.objects.filter(
         user=request.user
@@ -60,4 +72,37 @@ def get_ingredients_list(request):
             f'{ingredient["amount"]} '
             f'{ingredient["measurement_unit"]}\n'
         )
-    return ingredients
+    return _string
+
+
+def get_shopping_cart_as_txt(request):
+    """
+    Функция для генерации ответа с текстовым файлом,
+    содержащим список покупок.
+    """
+    ingredients_list = get_ingredients_list(request)
+    response = HttpResponse(
+        ingredients_list,
+        content_type='text/plain'
+    )
+    response['Content-Disposition'] = (
+        'attachment; '
+        'filename="shopping_cart.txt'
+    )
+    return response
+
+
+def get_shopping_cart_as_pdf(request):
+    """
+    Функция для генерации ответа с pdf-файлом,
+    содержащим список покупок.
+    """
+    ingredients_list = get_ingredients_list(request)
+    pdf = pdfkit.from_string(ingredients_list)
+    response = HttpResponse(pdf, content_type='application/pdf')
+    response['Content-Disposition'] = (
+        'attachment; '
+        'filename="shopping_cart.pdf'
+    )
+    return response
+
