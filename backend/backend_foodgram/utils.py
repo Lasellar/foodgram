@@ -99,10 +99,10 @@ def get_shopping_cart_as_pdf(request):
     содержащим список покупок.
     """
     ingredients_list = get_ingredients_list(request)
-    pdf = pdfkit.from_string(ingredients_list, 'out.pdf')
+    pdf = pdfkit.from_string(ingredients_list, False)
     response = HttpResponse(pdf, content_type='application/pdf')
     response['Content-Disposition'] = (
         'attachment; '
-        'filename="shopping_cart.pdf'
+        'filename="shopping_cart.pdf"'
     )
     return response
