@@ -116,7 +116,7 @@ def get_shopping_cart_as_pdf(request):
     ingredients_encoded = ingredients.encode('latin-1', 'replace').decode('latin-1')
     pdf = FPDF()
     pdf.add_page()
-    pdf.set_font('Arial', size=14)
+    pdf.add_font('Arial', uni=True)
     pdf.multi_cell(0, 10, txt=ingredients_encoded)
     pdf.output(name='shopping_cart.pdf')
 
