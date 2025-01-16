@@ -117,7 +117,7 @@ def get_shopping_cart_as_pdf(request):
     pdf.add_page()
     pdf.set_font('Arial', size=14)
     pdf.cell(200, 50, txt=ingredients)
-    pdf.output(name='shopping_cart.pdf')
+    pdf.output(name='shopping_cart.pdf').encode('utf-8')
 
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename="shopping_cart.pdf"'
