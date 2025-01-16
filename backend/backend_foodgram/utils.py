@@ -5,6 +5,7 @@ from .models import ShoppingCart
 
 import random
 import string
+import io
 
 
 def generate_short_link():
@@ -111,26 +112,14 @@ def get_shopping_cart_as_txt(request) -> HttpResponse:
 
 
 def generate_pdf(request):
-    # Получаем список ингредиентов
-    ingredients = get_ingredients_list()
-
-    # Создаем объект PDF
+    ingredients = get_ingredients_list(request)
     pdf = FPDF()
     pdf.add_page()
+    pdf.set_font('Arial', size=14)
+    pdf.cell(200, 50, txt=ingredients)
+    pdf.output(name='shopping_cart.pdf')
 
-    # Устанавливаем шрифт
-    pdf.set_font("Arial", size=12)
-
-    # Добавляем содержимое в PDF
-    for line in ingredients.split('\n'):
-        pdf.cell(200, 10, txt=line, ln=True)
-
-    # Создаем HTTP-ответ с PDF-файлом
     response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = 'attachment; filename="ingredients_list.pdf"'
-
-    # Генерируем PDF и выводим его в ответ
-    pdf_output = pdf.output().encode('latin-1')  # Получаем PDF как байтовую строку
-    response.write(pdf_output)  # Записываем байтовую строку в ответ
+    response['Content-Disposition'] = 'attachment; filename="shopping_cart.pdf"'
 
     return response
