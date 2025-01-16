@@ -2,7 +2,6 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
-from django.http import FileResponse, HttpResponseRedirect, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status
@@ -14,12 +13,11 @@ from rest_framework.viewsets import (
     ReadOnlyModelViewSet, GenericViewSet, ModelViewSet
 )
 from rest_framework.mixins import ListModelMixin
-from rest_framework.permissions import IsAdminUser, IsAuthenticated
+from rest_framework.permissions import IsAuthenticated
 
 from .filters import IngredientFilter, RecipeFilter
 from .models import Tag, Ingredient, Recipe, ShoppingCart, Favorite, RecipeShortLink
 from users.models import Subscription
-
 from .pagination import PageLimitAndRecipesLimitPagination
 from .permissions import IsAuthenticatedAndAuthor
 from .serializers import (
@@ -28,24 +26,24 @@ from .serializers import (
     UserSubscribeSerializer, UserSubscribeRepresentSerializer,
     UserGETSerializer, UserSignUpSerializer
 )
-from .utils import generate_short_link, generate_full_short_url, get_ingredients_list, get_shopping_cart_as_pdf, \
-    get_shopping_cart_as_txt
-from .validators import SignUpValidator
+from .utils import (
+    generate_short_link, generate_full_short_url, get_shopping_cart_as_txt
+)
 
 import base64
-import random
-import string
 
 User = get_user_model()
 
 
 class TagViewSet(ReadOnlyModelViewSet):
+    """Вьюсет для обработки запросов, связанных с тегами."""
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
     pagination_class = None
 
 
 class IngredientViewSet(ReadOnlyModelViewSet):
+    """Вьюсет для обработки запросов, связанных с ингредиентами."""
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     filter_backends = (DjangoFilterBackend,)
@@ -54,6 +52,7 @@ class IngredientViewSet(ReadOnlyModelViewSet):
 
 
 class RecipeViewSet(ModelViewSet):
+    """Вьюсет для обработки запросов, связанных с рецептами."""
     queryset = Recipe.objects.all().order_by('-id')
     filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipeFilter
@@ -475,30 +474,3 @@ class UserViewSet(ModelViewSet):
         return Response(
             serializer.errors, status=status.HTTP_400_BAD_REQUEST
         )
-
-
-class UserPasswordReset(APIView):
-    def post(self, request):
-        user = request.user
-        current_password = request.data.get('current_password')
-        new_password = request.data.get('new_password')
-        if user.check_password(current_password):
-            user.set_password(new_password)
-            user.save()
-            return Response(status=status.HTTP_201_CREATED)
-        return Response(status=status.HTTP_418_IM_A_TEAPOT)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
