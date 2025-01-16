@@ -1,3 +1,4 @@
+import pdfkit
 from django.http import HttpResponse
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
@@ -115,28 +116,16 @@ def get_shopping_cart_as_txt(request) -> HttpResponse:
     return response
 
 
-def get_shopping_cart_as_pdf(request) -> HttpResponse:
+def get_shopping_cart_as_pdf(request):
     """
-    Функция для генерации HttpResponse с pdf-файлом,
+    Функция для генерации ответа с pdf-файлом,
     содержащим список покупок.
     """
     ingredients_list = get_ingredients_list(request)
-    buffer = BytesIO()
-    pdf = canvas.Canvas(buffer, pagesize=letter)
-    width, height = letter
-    pdfmetrics.registerFont(
-        TTFont(name='DejaVuSans', filename=DATAFILES_DIR / 'DejaVuSans.ttf')
+    pdf = pdfkit.from_string(ingredients_list, False)
+    response = HttpResponse(pdf, content_type='application/pdf')
+    response['Content-Disposition'] = (
+        'attachment; '
+        'filename="shopping_cart.pdf"'
     )
-    pdf.setFont(psfontname='DejaVuSans', size=14)
-    pdf.drawString(x=100, y=height - 100, text="Список покупок:")
-    y_position = height - 120
-    for ingredient in ingredients_list.splitlines():
-        pdf.drawString(x=100, y=y_position, text=ingredient)
-        y_position -= 20
-    pdf.showPage()
-    pdf.save()
-    response = HttpResponse(buffer, content_type='application/pdf')
-    response[
-        'Content-Disposition'
-    ] = 'attachment; filename="shopping_cart.pdf"'
     return response
