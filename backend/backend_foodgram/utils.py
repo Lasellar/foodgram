@@ -1,8 +1,11 @@
 from django.http import HttpResponse
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
 
 from .models import ShoppingCart
+from backend.settings import DATAFILES_DIR
 
 import random
 import string
@@ -105,10 +108,15 @@ def get_shopping_cart_as_pdf(request):
     pdf = canvas.Canvas(buffer, pagesize=letter)
     width, height = letter
 
-    pdf.drawString(100, height - 100, "Список покупок:")
+    pdfmetrics.registerFont(
+        TTFont(name='DejaVuSans', filename=DATAFILES_DIR / 'DejaVuSans.ttf')
+    )
+    pdf.setFont(psfontname='DejaVuSans', size=14)
+
+    pdf.drawString(x=100, y=height - 100, text="Список покупок:")
     y_position = height - 120
     for ingredient in ingredients_list.splitlines():
-        pdf.drawString(100, y_position, ingredient)
+        pdf.drawString(x=100, y=y_position, text=ingredient)
         y_position -= 20
 
     pdf.showPage()
@@ -117,6 +125,8 @@ def get_shopping_cart_as_pdf(request):
     buffer.seek(0)
 
     response = HttpResponse(buffer, content_type='application/pdf')
-    response['Content-Disposition'] = 'attachment; filename="shopping_cart.pdf"'
+    response[
+        'Content-Disposition'
+    ] = 'attachment; filename="shopping_cart.pdf"'
     return response
 
