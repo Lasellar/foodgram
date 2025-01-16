@@ -111,7 +111,7 @@ def get_shopping_cart_as_txt(request) -> HttpResponse:
     return response
 
 
-def get_shopping_cart_as_pdf(request):
+"""def get_shopping_cart_as_pdf(request):
     ingredients = get_ingredients_list(request)
     pdf = FPDF()
     pdf.add_page()
@@ -123,4 +123,4 @@ def get_shopping_cart_as_pdf(request):
         response = HttpResponse(f.read(), content_type='application/pdf')
         response['Content-Disposition'] = 'attachment; filename="shopping_cart.pdf"'
 
-    return response
+    return response"""

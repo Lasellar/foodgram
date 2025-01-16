@@ -30,7 +30,8 @@ from .serializers import (
 )
 from .utils import (
     generate_short_link, generate_full_short_url,
-    get_shopping_cart_as_txt, get_shopping_cart_as_pdf
+    get_shopping_cart_as_txt,
+    # get_shopping_cart_as_pdf
 )
 
 import base64
@@ -183,9 +184,9 @@ class RecipeViewSet(ModelViewSet):
         detail=False, methods=('get',), url_path='download_shopping_cart'
     )
     def download_shopping_cart(self, request):
-        txt = get_shopping_cart_as_txt(request)
-        pdf = get_shopping_cart_as_pdf(request)
-        return pdf
+        response = get_shopping_cart_as_txt(request)
+        # response = get_shopping_cart_as_pdf(request)
+        return response
 
 
 def redirect_short_link_view(request, short_link):
