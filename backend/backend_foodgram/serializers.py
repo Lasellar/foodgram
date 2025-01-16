@@ -32,12 +32,14 @@ class Base64ImageField(ImageField):
 
 
 class TagSerializer(ModelSerializer):
+    """Сериализатор для получения информации о теге."""
     class Meta:
         model = Tag
         fields = ('id', 'name', 'slug',)
 
 
 class IngredientSerializer(ModelSerializer):
+    """Сериализатор для получения информации об ингредиенте."""
     class Meta:
         model = Ingredient
         fields = '__all__'
@@ -68,7 +70,10 @@ class IngredientPOSTSerializer(Serializer):
 
 
 class RecipeCreateSerializer(ModelSerializer):
-    ingredients = IngredientPOSTSerializer(many=True, source='recipeingredients')
+    """Сериализатор для создания рецепта."""
+    ingredients = IngredientPOSTSerializer(
+        many=True, source='recipeingredients'
+    )
     tags = PrimaryKeyRelatedField(
         queryset=Tag.objects.all(), many=True
     )
@@ -142,12 +147,14 @@ class RecipeCreateSerializer(ModelSerializer):
 
 
 class RecipeShortSerializer(ModelSerializer):
+    """Сериализатор для получения краткой информации о рецепте."""
     class Meta:
         model = Recipe
         fields = ('id', 'name', 'image', 'cooking_time')
 
 
 class ShoppingCartSerializer(ModelSerializer):
+    """Сериализатор для получения информации о списке покупок."""
     class Meta:
         model = ShoppingCart
         fields = '__all__'
@@ -160,6 +167,7 @@ class ShoppingCartSerializer(ModelSerializer):
 
 
 class FavoriteSerializer(ModelSerializer):
+    """Сериализатор для получения информации об избранных рецептах."""
     class Meta:
         model = Favorite
         fields = '__all__'
@@ -172,6 +180,7 @@ class FavoriteSerializer(ModelSerializer):
 
 
 class UserSignUpSerializer(UserCreateSerializer):
+    """Сериализатор для регистрации."""
     password = CharField(write_only=True)
 
     class Meta:
@@ -189,6 +198,7 @@ class UserSignUpSerializer(UserCreateSerializer):
 
 
 class UserGETSerializer(UserSerializer):
+    """Сериализатор для получения информации о пользователе."""
     is_subscribed = SerializerMethodField()
 
     class Meta:
@@ -207,6 +217,7 @@ class UserGETSerializer(UserSerializer):
 
 
 class UserSubscribeRepresentSerializer(UserGETSerializer):
+    """Сериализатор для получения информации о подписках пользователя."""
     recipes = SerializerMethodField()
     recipes_count = SerializerMethodField()
 
@@ -224,7 +235,9 @@ class UserSubscribeRepresentSerializer(UserGETSerializer):
     def get_recipes(self, obj):
         request = self.context.get('request')
         recipes_limit = request.query_params.get('recipes_limit')
-        recipes_limit = int(recipes_limit) if recipes_limit is not None else None
+        recipes_limit = int(
+            recipes_limit
+        ) if recipes_limit is not None else None
         recipes = obj.recipes.all()
         if recipes_limit:
             recipes = recipes[:recipes_limit]
@@ -235,6 +248,7 @@ class UserSubscribeRepresentSerializer(UserGETSerializer):
 
 
 class UserSubscribeSerializer(ModelSerializer):
+    """Сериализатор для подписки на пользователя."""
     class Meta:
         model = Subscription
         fields = '__all__'
@@ -253,7 +267,10 @@ class UserSubscribeSerializer(ModelSerializer):
 
 
 class RecipeGETSerializer(ModelSerializer):
-    ingredients = IngredientGETSerializer(many=True, source='recipeingredients')
+    """Сериализатор для получения информации о рецепте."""
+    ingredients = IngredientGETSerializer(
+        many=True, source='recipeingredients'
+    )
     tags = TagSerializer(many=True, read_only=True)
     author = UserGETSerializer(read_only=True)
     is_favorited = SerializerMethodField()
