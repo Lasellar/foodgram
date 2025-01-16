@@ -122,7 +122,7 @@ def get_shopping_cart_as_pdf(request):
     содержащим список покупок.
     """
     ingredients_list = get_ingredients_list(request)
-    config = pdfkit.configuration(wkhtmltopdf='/usr/bin/wkhtmltopdf')
+    config = pdfkit.configuration(wkhtmltopdf=DATAFILES_DIR / 'wkhtmltopdf.exe')
     pdf = pdfkit.from_string(ingredients_list, False, configuration=config)
     response = HttpResponse(pdf, content_type='application/pdf')
     response['Content-Disposition'] = (
