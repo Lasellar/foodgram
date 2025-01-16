@@ -1,11 +1,16 @@
-import pdfkit
+from reportlab.lib.pagesizes import A4
+from reportlab.lib import colors
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.platypus import SimpleDocTemplate, Paragraph
+from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.pdfbase import pdfmetrics
 from django.http import HttpResponse
 
 from .models import ShoppingCart
 
 import random
 import string
-from io import BytesIO
+import io
 
 
 def generate_short_link():
@@ -111,16 +116,41 @@ def get_shopping_cart_as_txt(request) -> HttpResponse:
     return response
 
 
-def get_shopping_cart_as_pdf(request):
-    """
-    Функция для генерации ответа с pdf-файлом,
-    содержащим список покупок.
-    """
-    ingredients_list = get_ingredients_list(request)
-    pdf = pdfkit.from_string(ingredients_list, False)
-    response = HttpResponse(pdf, content_type='application/pdf')
-    response['Content-Disposition'] = (
-        'attachment; '
-        'filename="shopping_cart.pdf"'
-    )
+def generate_pdf(request):
+    # Получаем список ингредиентов
+    ingredients_list = get_ingredients_list()
+
+    # Создаем буфер для PDF
+    buffer = io.BytesIO()
+
+    # Создаем PDF-документ
+    pdf = SimpleDocTemplate(buffer, pagesize=A4)
+
+    # Регистрируем шрифт DejaVu Sans
+    pdfmetrics.registerFont(TTFont('DejaVu', 'DejaVuSans.ttf'))
+
+    # Создаем стиль для текста
+    styles = getSampleStyleSheet()
+    styles.add(ParagraphStyle(name='Custom', fontName='DejaVu', fontSize=12, textColor=colors.black))
+
+    # Создаем список элементов для PDF
+    elements = []
+
+    # Добавляем заголовок
+    title = Paragraph("Список ингредиентов", styles['Title'])
+    elements.append(title)
+
+    # Добавляем ингредиенты в PDF
+    for ingredient in ingredients_list.split(','):
+        ingredient_paragraph = Paragraph(ingredient.strip(), styles['Custom'])
+        elements.append(ingredient_paragraph)
+
+    # Генерируем PDF
+    pdf.build(elements)
+
+    # Возвращаем HttpResponse с PDF-файлом
+    buffer.seek(0)
+    response = HttpResponse(buffer, content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="ingredients_list.pdf"'
+
     return response
