@@ -1,10 +1,13 @@
 from django.http import HttpResponse
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
 
 from .models import ShoppingCart
 
 import random
 import string
 import pdfkit
+from io import BytesIO
 
 
 def generate_short_link():
@@ -99,10 +102,22 @@ def get_shopping_cart_as_pdf(request):
     содержащим список покупок.
     """
     ingredients_list = get_ingredients_list(request)
-    pdf = pdfkit.from_string(ingredients_list, False)
-    response = HttpResponse(pdf, content_type='application/pdf')
-    response['Content-Disposition'] = (
-        'attachment; '
-        'filename="shopping_cart.pdf"'
-    )
+    buffer = BytesIO()
+    pdf = canvas.Canvas(buffer, pagesize=letter)
+    width, height = letter
+
+    pdf.drawString(100, height - 100, "Список покупок:")
+    y_position = height - 120
+    for ingredient in ingredients_list.splitlines():
+        pdf.drawString(100, y_position, ingredient)
+        y_position -= 20
+
+    pdf.showPage()
+    pdf.save()
+
+    buffer.seek(0)
+
+    response = HttpResponse(buffer, content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="shopping_cart.pdf"'
     return response
+
