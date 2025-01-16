@@ -60,7 +60,7 @@ class FavoriteAdmin(ModelAdmin):
 
 
 @register(ShoppingCart)
-class FavoriteAdmin(ModelAdmin):
+class ShoppingCartAdmin(ModelAdmin):
     list_display = ('id', 'user', 'recipe')
     empty_value_display = settings.EMPTY_VALUE
 

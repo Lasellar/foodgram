@@ -85,7 +85,7 @@ class RecipeCreateSerializer(ModelSerializer):
         model = Recipe
         fields = (
             'id', 'tags', 'author', 'ingredients', 'is_favorited',
-            'is_in_shopping_cart', 'name', 'image',  'text', 'cooking_time'
+            'is_in_shopping_cart', 'name', 'image', 'text', 'cooking_time'
         )
         read_only_fields = ('author',)
 
@@ -294,4 +294,3 @@ class RecipeGETSerializer(ModelSerializer):
         return ShoppingCart.objects.filter(
             user=user_id, recipe=obj
         ).exists()
-

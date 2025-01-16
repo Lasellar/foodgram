@@ -39,10 +39,3 @@ class RecipeFilter(FilterSet):
 
     def filter_by_tags(self, queryset, name, value):
         return queryset.filter(tags__slug=value)
-
-
-
-
-
-
-

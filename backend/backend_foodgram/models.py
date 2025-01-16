@@ -46,7 +46,7 @@ class Recipe(Model):
     Модель рецепта.
     """
     author = ForeignKey(
-       User, on_delete=CASCADE, related_name='recipes'
+        User, on_delete=CASCADE, related_name='recipes'
     )
     name = CharField(verbose_name='Название', max_length=256)
     text = TextField(verbose_name='Описание')
@@ -177,4 +177,3 @@ class RecipeShortLink(Model):
         ]
         verbose_name = 'Рецепт-Короткая ссылка'
         verbose_name_plural = 'Рецепты-Короткие ссылки'
-
