@@ -111,7 +111,7 @@ def get_shopping_cart_as_txt(request) -> HttpResponse:
     return response
 
 
-def generate_pdf(request):
+def get_shopping_cart_as_pdf(request):
     ingredients = get_ingredients_list(request)
     pdf = FPDF()
     pdf.add_page()
