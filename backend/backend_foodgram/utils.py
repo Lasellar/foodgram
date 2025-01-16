@@ -1,11 +1,9 @@
 from django.http import HttpResponse
-from fpdf import FPDF
 
 from .models import ShoppingCart
 
 import random
 import string
-import io
 
 
 def generate_short_link():
@@ -36,12 +34,6 @@ def get_ingredients_list(request):
     """
     Функция для генерации строки со списком
     ингредиентов из списка покупок.
-
-    Аргументы:
-    request -- объект запроса, содержащий информацию о текущем пользователе.
-
-    Возвращает:
-    Строку, представляющую список ингредиентов с их количеством и единицами измерения.
     """
     ingredients = []
     # Получаем все рецепты, добавленные в
@@ -121,6 +113,8 @@ def get_shopping_cart_as_txt(request) -> HttpResponse:
 
     with open('shopping_cart.pdf', 'rb') as f:
         response = HttpResponse(f.read(), content_type='application/pdf')
-        response['Content-Disposition'] = 'attachment; filename="shopping_cart.pdf"'
+        response['
+            Content-Disposition'
+            ] = 'attachment; filename="shopping_cart.pdf"'
 
     return response"""
