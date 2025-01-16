@@ -9,7 +9,7 @@ class PageLimitPagination(PageNumberPagination):
     page_size_query_param = 'limit'
 
 
-class PageLimitAndRecipesLimitPagination(download_shopping_cart/):
+class PageLimitAndRecipesLimitPagination(PageLimitPagination):
     """
     Кастомный пагинатор.
     """
