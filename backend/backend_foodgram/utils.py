@@ -115,7 +115,7 @@ def get_shopping_cart_as_pdf(request):
     ingredients = get_ingredients_list(request)
     pdf = FPDF()
     pdf.add_page()
-    pdf.add_font('DejaVuSans', fname='DejaVuSans.ttf', uni=True)
+    pdf.add_font('DejaVuSans', fname='./DejaVuSans.ttf', uni=True)
     pdf.multi_cell(0, 10, txt=ingredients)
     pdf.output(name='shopping_cart.pdf')
 
