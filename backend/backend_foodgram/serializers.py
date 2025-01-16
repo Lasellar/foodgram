@@ -290,7 +290,7 @@ class RecipeGETSerializer(ModelSerializer):
             return Favorite.objects.filter(
                 user=user_id, recipe=obj
             ).exists()
-        return False
+        raise Exception('request is None')
 
     def get_is_in_shopping_cart(self, obj):
         request = self.context.get('request')
@@ -299,4 +299,4 @@ class RecipeGETSerializer(ModelSerializer):
             return ShoppingCart.objects.filter(
                 user=user_id, recipe=obj
             ).exists()
-        return False
+        return Exception('request is None')

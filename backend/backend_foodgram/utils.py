@@ -1,12 +1,7 @@
 import pdfkit
 from django.http import HttpResponse
-from reportlab.lib.pagesizes import letter
-from reportlab.pdfgen import canvas
-from reportlab.pdfbase import pdfmetrics
-from reportlab.pdfbase.ttfonts import TTFont
 
 from .models import ShoppingCart
-from backend.settings import DATAFILES_DIR
 
 import random
 import string
@@ -122,8 +117,7 @@ def get_shopping_cart_as_pdf(request):
     содержащим список покупок.
     """
     ingredients_list = get_ingredients_list(request)
-    config = pdfkit.configuration(wkhtmltopdf=DATAFILES_DIR / 'wkhtmltopdf.exe')
-    pdf = pdfkit.from_string(ingredients_list, False, configuration=config)
+    pdf = pdfkit.from_string(ingredients_list, False)
     response = HttpResponse(pdf, content_type='application/pdf')
     response['Content-Disposition'] = (
         'attachment; '
