@@ -86,8 +86,11 @@ class RecipeViewSet(ModelViewSet):
         ):
             return (IsAuthenticated(),)
 
-        if (self.request.method == 'PATCH' or
-                self.request.method == 'DELETE'):
+        if (
+            self.request.method == 'PATCH' or (
+                self.request.method == 'DELETE'
+            )
+        ):
             return (IsAuthenticatedAndAuthor(),)
 
         return super().get_permissions()
