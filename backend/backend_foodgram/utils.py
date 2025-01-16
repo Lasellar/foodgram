@@ -113,11 +113,12 @@ def get_shopping_cart_as_txt(request) -> HttpResponse:
 
 def get_shopping_cart_as_pdf(request):
     ingredients = get_ingredients_list(request)
+    ingredients_encoded = ingredients.encode('latin-1', 'replace').decode('latin-1')
     pdf = FPDF()
     pdf.add_page()
     pdf.set_font('Arial', size=14)
-    pdf.cell(200, 50, txt=ingredients)
-    pdf.output(name='shopping_cart.pdf').encode('utf-8')
+    pdf.multi_cell(0, 10, txt=ingredients_encoded)
+    pdf.output(name='shopping_cart.pdf')
 
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename="shopping_cart.pdf"'
