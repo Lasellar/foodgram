@@ -60,8 +60,9 @@ def get_ingredients_list(request):
             )
             if existing_ingredient:
                 existing_ingredient['amount'] = round(
-                    existing_ingredient['amount'] +
-                    ingredient_data['amount'], 3
+                    existing_ingredient[
+                        'amount'
+                    ] + ingredient_data['amount'], 3
                 )
             else:
                 ingredients.append(ingredient_data)
@@ -105,4 +106,3 @@ def get_shopping_cart_as_pdf(request):
         'filename="shopping_cart.pdf'
     )
     return response
-

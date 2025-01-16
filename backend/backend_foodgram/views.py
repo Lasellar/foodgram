@@ -16,7 +16,9 @@ from rest_framework.mixins import ListModelMixin
 from rest_framework.permissions import IsAuthenticated
 
 from .filters import IngredientFilter, RecipeFilter
-from .models import Tag, Ingredient, Recipe, ShoppingCart, Favorite, RecipeShortLink
+from .models import (
+    Tag, Ingredient, Recipe, ShoppingCart, Favorite, RecipeShortLink
+)
 from users.models import Subscription
 from .pagination import PageLimitAndRecipesLimitPagination
 from .permissions import IsAuthenticatedAndAuthor
@@ -71,23 +73,16 @@ class RecipeViewSet(ModelViewSet):
         """
         Метод, определяющий разрешения на доступ для конкретных методов.
         """
-        if (
-            self.request.method == 'POST'
-            or (
-                self.request.method == 'DELETE'
-                and
-                (
-                    '/favorite/' in self.request.path
-                    or '/shopping_cart/' in self.request.path
-                )
-            )
-        ):
+        if (self.request.method == 'POST' or
+                (self.request.method == 'DELETE' and
+                 ('/favorite/' in self.request.path or
+                  '/shopping_cart/' in self.request.path))):
             return (IsAuthenticated(),)
-        if (
-            self.request.method == 'PATCH'
-            or self.request.method == 'DELETE'
-        ):
+
+        if (self.request.method == 'PATCH' or
+                self.request.method == 'DELETE'):
             return (IsAuthenticatedAndAuthor(),)
+
         return super().get_permissions()
 
     def get_object(self):
@@ -264,7 +259,9 @@ class LoginView(APIView):
             )
         if user.check_password(password):
             token, created = Token.objects.get_or_create(user=user)
-            return Response({'auth_token': token.key}, status=status.HTTP_200_OK)
+            return Response(
+                {'auth_token': token.key}, status=status.HTTP_200_OK
+            )
         return Response(
             {'error': 'Invalid credentials'},
             status=status.HTTP_401_UNAUTHORIZED
