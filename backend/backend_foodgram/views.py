@@ -73,10 +73,17 @@ class RecipeViewSet(ModelViewSet):
         """
         Метод, определяющий разрешения на доступ для конкретных методов.
         """
-        if (self.request.method == 'POST' or
-                (self.request.method == 'DELETE' and
-                 ('/favorite/' in self.request.path or
-                  '/shopping_cart/' in self.request.path))):
+        if (
+            self.request.method == 'POST' or (
+                (
+                    self.request.method == 'DELETE' and (
+                        '/favorite/' in self.request.path or (
+                            '/shopping_cart/' in self.request.path
+                        )
+                    )
+                )
+            )
+        ):
             return (IsAuthenticated(),)
 
         if (self.request.method == 'PATCH' or
