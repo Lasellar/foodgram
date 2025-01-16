@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - main
-      - backend
-      - backend-models
   workflow_dispatch:
     inputs:
       logLevel:
