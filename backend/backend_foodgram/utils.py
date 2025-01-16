@@ -120,7 +120,8 @@ def get_shopping_cart_as_pdf(request):
     pdf.multi_cell(0, 10, txt=ingredients_encoded)
     pdf.output(name='shopping_cart.pdf')
 
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = 'attachment; filename="shopping_cart.pdf"'
+    with open('shopping_cart.pdf', 'rb') as f:
+        response = HttpResponse(f.read(), content_type='application/pdf')
+        response['Content-Disposition'] = 'attachment; filename="shopping_cart.pdf"'
 
     return response
