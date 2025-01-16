@@ -40,29 +40,44 @@ def get_ingredients_list(request):
     """
     Функция для генерации строки со списком
     ингредиентов из списка покупок.
+
+    Аргументы:
+    request -- объект запроса, содержащий информацию о текущем пользователе.
+
+    Возвращает:
+    Строку, представляющую список ингредиентов с их количеством и единицами измерения.
     """
     ingredients = []
+    # Получаем все рецепты, добавленные в
+    # корзину покупок текущим пользователем
     shopping_cart_recipes = ShoppingCart.objects.filter(
         user=request.user
     ).select_related('recipe')
+    # Проходим по каждому элементу в корзине покупок
     for item in shopping_cart_recipes:
+        # Получаем все ингредиенты для текущего рецепта
         recipe_ingredients = item.recipe.recipeingredients.all()
+        # Проходим по всем ингредиентам текущего рецепта
         for recipe_ingredient in recipe_ingredients:
+            # Создаем словарь с данными об ингредиенте
             ingredient_data = {
                 'name': recipe_ingredient.ingredient.name,
                 'measurement_unit':
                     recipe_ingredient.ingredient.measurement_unit,
                 'amount': recipe_ingredient.amount
             }
+            # Проверяем, существует ли уже этот ингредиент в списке
             existing_ingredient = next(
                 (
                     ing for ing in ingredients if
                     ing['name'] == ingredient_data['name']
-                    and ing['measurement_unit']
-                    == ingredient_data['measurement_unit']
+                    and ing[
+                        'measurement_unit'
+                    ] == ingredient_data['measurement_unit']
                 ),
                 None
             )
+            # Если ингредиент уже существует, обновляем его количество
             if existing_ingredient:
                 existing_ingredient['amount'] = round(
                     existing_ingredient[
@@ -70,7 +85,9 @@ def get_ingredients_list(request):
                     ] + ingredient_data['amount'], 3
                 )
             else:
+                # Если ингредиент новый, добавляем его в список
                 ingredients.append(ingredient_data)
+    # Формируем строку из списка ингредиентов
     _string = ''
     for ingredient in ingredients:
         _string += (
@@ -78,12 +95,12 @@ def get_ingredients_list(request):
             f'{ingredient["amount"]} '
             f'{ingredient["measurement_unit"]}\n'
         )
-    return _string
+    return _string  # Возвращаем сформированную строку
 
 
-def get_shopping_cart_as_txt(request):
+def get_shopping_cart_as_txt(request) -> HttpResponse:
     """
-    Функция для генерации ответа с текстовым файлом,
+    Функция для генерации HttpResponse с текстовым файлом,
     содержащим список покупок.
     """
     ingredients_list = get_ingredients_list(request)
@@ -93,40 +110,33 @@ def get_shopping_cart_as_txt(request):
     )
     response['Content-Disposition'] = (
         'attachment; '
-        'filename="shopping_cart.txt'
+        'filename="shopping_cart.txt"'
     )
     return response
 
 
-def get_shopping_cart_as_pdf(request):
+def get_shopping_cart_as_pdf(request) -> HttpResponse:
     """
-    Функция для генерации ответа с pdf-файлом,
+    Функция для генерации HttpResponse с pdf-файлом,
     содержащим список покупок.
     """
     ingredients_list = get_ingredients_list(request)
     buffer = BytesIO()
     pdf = canvas.Canvas(buffer, pagesize=letter)
     width, height = letter
-
     pdfmetrics.registerFont(
         TTFont(name='DejaVuSans', filename=DATAFILES_DIR / 'DejaVuSans.ttf')
     )
     pdf.setFont(psfontname='DejaVuSans', size=14)
-
     pdf.drawString(x=100, y=height - 100, text="Список покупок:")
     y_position = height - 120
     for ingredient in ingredients_list.splitlines():
         pdf.drawString(x=100, y=y_position, text=ingredient)
         y_position -= 20
-
     pdf.showPage()
     pdf.save()
-
-    buffer.seek(0)
-
     response = HttpResponse(buffer, content_type='application/pdf')
     response[
         'Content-Disposition'
     ] = 'attachment; filename="shopping_cart.pdf"'
     return response
-
