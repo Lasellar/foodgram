@@ -6,7 +6,6 @@ from .models import ShoppingCart
 
 import random
 import string
-import pdfkit
 from io import BytesIO
 
 
