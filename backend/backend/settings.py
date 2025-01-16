@@ -6,7 +6,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv()
 SECRET_KEY = os.environ.get('SECRET_KEY')
 
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = [
     'lasellarfoodgram.ddns.net',
@@ -159,3 +159,5 @@ CORS_URLS_REGEX = r'^/api/.*$'
 CORS_ALLOWED_ORIGINS = [
     'http://127.0.0.1:3000',
 ]
+
+CSRF_TRUSTED_ORIGINS = ('lasellarfoodgram.ddns.net',)
