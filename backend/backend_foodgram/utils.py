@@ -113,11 +113,10 @@ def get_shopping_cart_as_txt(request) -> HttpResponse:
 
 def get_shopping_cart_as_pdf(request):
     ingredients = get_ingredients_list(request)
-    ingredients_encoded = ingredients.encode('latin-1', 'replace').decode('latin-1')
     pdf = FPDF()
     pdf.add_page()
-    pdf.add_font('Arial', uni=True)
-    pdf.multi_cell(0, 10, txt=ingredients_encoded)
+    pdf.add_font('DejaVuSans', fname='DejaVuSans.ttf', uni=True)
+    pdf.multi_cell(0, 10, txt=ingredients)
     pdf.output(name='shopping_cart.pdf')
 
     with open('shopping_cart.pdf', 'rb') as f:
