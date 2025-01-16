@@ -29,7 +29,8 @@ from .serializers import (
     UserGETSerializer, UserSignUpSerializer
 )
 from .utils import (
-    generate_short_link, generate_full_short_url, get_shopping_cart_as_txt
+    generate_short_link, generate_full_short_url,
+    get_shopping_cart_as_txt, get_shopping_cart_as_pdf
 )
 
 import base64
@@ -94,9 +95,6 @@ class RecipeViewSet(ModelViewSet):
             return (IsAuthenticatedAndAuthor(),)
 
         return super().get_permissions()
-
-    def get_object(self):
-        return super().get_object()
 
     @action(detail=True, methods=('post', 'delete'))
     def favorite(self, request, pk):
@@ -185,9 +183,9 @@ class RecipeViewSet(ModelViewSet):
         detail=False, methods=('get',), url_path='download_shopping_cart'
     )
     def download_shopping_cart(self, request):
-        return get_shopping_cart_as_txt(request)
-        # не работает
-        # return get_shopping_cart_as_pdf(request)
+        txt = get_shopping_cart_as_txt(request)
+        pdf = get_shopping_cart_as_pdf(request)
+        return pdf
 
 
 def redirect_short_link_view(request, short_link):

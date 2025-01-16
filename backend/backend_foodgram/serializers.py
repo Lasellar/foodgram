@@ -284,13 +284,19 @@ class RecipeGETSerializer(ModelSerializer):
         )
 
     def get_is_favorited(self, obj):
-        user_id = self.context.get('request').user.id
-        return Favorite.objects.filter(
-            user=user_id, recipe=obj
-        ).exists()
+        request = self.context.get('request')
+        if request is not None:
+            user_id = self.context.get('request').user.id
+            return Favorite.objects.filter(
+                user=user_id, recipe=obj
+            ).exists()
+        return False
 
     def get_is_in_shopping_cart(self, obj):
-        user_id = self.context.get('request').user.id
-        return ShoppingCart.objects.filter(
-            user=user_id, recipe=obj
-        ).exists()
+        request = self.context.get('request')
+        if request is not None:
+            user_id = self.context.get('request').user.id
+            return ShoppingCart.objects.filter(
+                user=user_id, recipe=obj
+            ).exists()
+        return False
