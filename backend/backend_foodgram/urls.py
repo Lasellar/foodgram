@@ -10,7 +10,6 @@ router = DefaultRouter()
 router.register(r'tags', TagViewSet, basename='tags')
 router.register(r'ingredients', IngredientViewSet, basename='ingredients')
 router.register(r'recipes', RecipeViewSet, basename='recipes')
-# router.register(r's', RecipeViewSet, basename='get-recipe-by-short-link')
 router.register(
     r'users/subscriptions', UserSubscriptionsViewSet,
     basename='users-subscriptions'

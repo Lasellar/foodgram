@@ -138,17 +138,6 @@ REST_FRAMEWORK = {
 
 }
 
-FORBIDDEN_CASES = {
-    'username': [
-        'me', 'user', 'username'
-    ],
-    'first_name': [],
-    'last_name': [],
-    'password': [],
-    'email': [
-        'noreply@foodgram.com'
-    ]
-}
 
 EMPTY_VALUE = '---'
 
